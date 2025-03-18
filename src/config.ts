@@ -21,15 +21,22 @@ export const foxschoolCookies =
           }
         : null;
 
+// littlefox
 export const littlefoxCookies =
     serviceSite === "littlefox"
         ? {
               fuStatus: getCookie({ name: "fu_status" }),
               lang: getCookie({ name: "lang" }),
-              hwCode: getCookie({ name: "hw_code" }),
+              hwNo: getCookie({ name: "hw_no" }),
               wordMasterSeq: getCookie({ name: "word_master_seq" }),
           }
         : null;
 
-export const WIDTH = 1080;
-export const HEIGHT = 1920;
+// screen
+export const WIDTH = deviceType === "tablet" ? 1920 : 1080;
+export const HEIGHT = deviceType === "tablet" ? 1440 : 1920;
+
+export let SCALE = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
+export const setScale = () => {
+    SCALE = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
+};
