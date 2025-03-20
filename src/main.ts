@@ -19,9 +19,8 @@ document.body.appendChild(app.canvas);
 const resizeApp = () => {
     setScale();
 
-    const w = deviceType === "tablet" ? window.innerWidth : WIDTH * SCALE;
-    const h = deviceType === "tablet" ? HEIGHT * SCALE : window.innerHeight;
-
+    const w = Math.min(WIDTH, WIDTH * SCALE);
+    const h = Math.min(HEIGHT, window.innerHeight);
     app.renderer.resize(w, h);
     app.stage.scale.set(SCALE);
 };
@@ -33,7 +32,7 @@ resizeApp();
 const sceneManager = new SceneManager(app);
 
 // 로딩 씬 표시
-const loadingScene = new LoadingScene(app, () => {
+const loadingScene = new LoadingScene(() => {
     // 로딩 완료 후 공부 화면으로 전환
     sceneManager.switchScene(new StudyScene(app, startGame));
 });
