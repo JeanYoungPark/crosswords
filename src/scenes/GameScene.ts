@@ -1,30 +1,16 @@
 // src/scenes/GameScene.ts
-import * as PIXI from "pixi.js";
-import { gsap } from "gsap";
+import { Container } from "pixi.js";
+import { TopBar } from "../components/TopBar";
 
-export class GameScene extends PIXI.Container {
-    private app: PIXI.Application;
-    private score: number = 0;
-
-    constructor(app: PIXI.Application, onBackToStudy: () => void) {
+export class GameScene extends Container {
+    constructor() {
         super();
-        this.app = app;
+
+        this.createTopBar();
     }
 
-    // 점수 업데이트
-    private updateScore(points: number) {
-        this.score += points;
+    private createTopBar() {
+        const topbar = new TopBar({ scene: "study" });
+        this.addChild(topbar);
     }
-
-    // 게임 업데이트 루프
-    private update(delta: number) {
-        // 여기에 게임 로직 추가
-        // 예: 충돌 감지, 타이머 등
-    }
-
-    // 게임 정리 (메모리 해제)
-    public destroy() {}
-
-    // 버튼 생성 헬퍼 함수
-    private createButton(label: string, width: number, height: number, onClick: () => void): PIXI.Container {}
 }
