@@ -1,44 +1,39 @@
 // src/scenes/LoadingScene.ts
-import { Application, Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
-import { HEIGHT, WIDTH } from "../config";
+import { Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
+import { HEIGHT, IMAGE_ASSETS, WIDTH } from "../config";
+import { ASSETS } from "../assets/assets";
 
 export class LoadingScene extends Container {
-    private loadingLogo: Sprite | null = null;
     private onComplete: () => void;
 
-    constructor(app: Application, onComplete: () => void) {
+    constructor(onComplete: () => void) {
         super();
-        // this.onComplete = onComplete;
+        this.onComplete = onComplete;
 
         // 즉시 로딩 화면 표기
         this.showLoadingScreen();
 
         // 로고 이미지 로드 (실제 이미지 경로로 변경 필요)
-        this.loadAssets(app);
+        this.loadAssets();
     }
 
     private async showLoadingScreen() {
-        const blockTexture = await Assets.load("/loading/bg_block.png");
+        // background
+        const blockTexture = await Assets.load(ASSETS.loading.bgBlock);
         const block = new Sprite(blockTexture);
         block.anchor.set(0.5);
         block.x = WIDTH / 2;
         block.y = HEIGHT / 2;
 
-        const logoTexture = await Assets.load("/loading/logo.png");
+        // logo
+        const logoTexture = await Assets.load(ASSETS.loading.logo);
         const logo = Sprite.from(logoTexture);
         logo.anchor.set(0.5);
         logo.x = WIDTH / 2;
         logo.y = HEIGHT / 2 - 150;
 
-        const animImages = [
-            "/loading/anim01.png",
-            "/loading/anim02.png",
-            "/loading/anim03.png",
-            "/loading/anim04.png",
-            "/loading/anim05.png",
-            "/loading/anim06.png",
-        ];
-
+        // fred anim
+        const animImages = ASSETS.loading.fred;
         const animTextureArr: Texture[] = [];
 
         for (let i = 0; i < animImages.length; i++) {
@@ -46,7 +41,6 @@ export class LoadingScene extends Container {
             animTextureArr.push(texture);
         }
 
-        console.log(animTextureArr);
         const fredSprite = new AnimatedSprite(animTextureArr);
         fredSprite.scale = 0.8;
         fredSprite.anchor.set(0.5);
@@ -61,5 +55,22 @@ export class LoadingScene extends Container {
     }
 
     // 에셋 로딩
-    private loadAssets(app: Application) {}
+    private async loadAssets() {
+        const assetsToLoad: Record<string, any> = ASSETS;
+
+        for (const key of Object.keys(assetsToLoad)) {
+            const assets: Record<string, string> = assetsToLoad[key];
+
+            if (!IMAGE_ASSETS[key]) IMAGE_ASSETS[key] = {};
+
+            for (const [name, path] of Object.entries(assets)) {
+                const texture = await Assets.load(path);
+                IMAGE_ASSETS[key][name] = texture;
+            }
+        }
+
+        setTimeout(() => {
+            if (this.onComplete) this.onComplete();
+        }, 500);
+    }
 }

@@ -19,11 +19,12 @@ export const api = ky.create({
     prefixUrl: url,
 });
 
-export const handleApi = async <T>(promise: Promise<T>) => {
+export const handleApi = async (promise: Promise<any>) => {
     try {
-        const response = (await promise) as Response;
+        const response = await promise;
         const data = await response.json();
-        return data as T;
+
+        return data;
     } catch (error) {
         console.log(error);
         return null;
