@@ -1,4 +1,3 @@
-// src/scenes/LoadingScene.ts
 import { Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
 import { HEIGHT, IMAGE_ASSETS, WIDTH } from "../config";
 import { ASSETS } from "../assets/assets";

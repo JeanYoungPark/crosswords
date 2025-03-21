@@ -30,9 +30,9 @@ const resizeApp = () => {
 window.addEventListener("resize", resizeApp);
 resizeApp();
 
-window.addEventListener("load", () => {
+(() => {
     if (os === "IOS") SoundState.set(false);
-});
+})();
 
 // 씬 매니저 생성
 const sceneManager = new SceneManager(app);

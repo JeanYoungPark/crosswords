@@ -147,13 +147,13 @@ export class IntroScene extends Container {
     }
 
     private createSoundBtn() {
-        const soundTexture = SoundState.value ? "soundOff" : "soundOn";
+        const soundTexture = SoundState.value ? "soundOn" : "soundOff";
         const sound = new Button(soundTexture, 60, 60);
         const clickFn = () => {
             const newState = !SoundState.value;
             SoundState.set(newState);
 
-            const newTexture = newState ? "soundOff" : "soundOn";
+            const newTexture = newState ? "soundOn" : "soundOff";
             sound.texture = IMAGE_ASSETS.buttons[newTexture];
 
             textContainer.visible = newState ? false : true;
