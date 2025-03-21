@@ -1,4 +1,3 @@
-// src/scenes/StudyScene.ts
 import { Container, Graphics, Sprite, Text } from "pixi.js";
 import { gsap } from "gsap";
 import { deviceType, gameType, HEIGHT, IMAGE_ASSETS, SoundState, SoundTextState, WIDTH } from "../config";
