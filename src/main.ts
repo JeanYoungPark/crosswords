@@ -3,8 +3,10 @@ import { LoadingScene } from "./scenes/LoadingScene";
 import { StudyScene } from "./scenes/StudyScene";
 import { GameScene } from "./scenes/GameScene";
 import { Application } from "pixi.js";
-import { deviceType, HEIGHT, SCALE, WIDTH, setScale } from "./config";
+import { HEIGHT, WIDTH, os, SoundState, ScaleState } from "./config";
 import "./style.css";
+import { IntroScene } from "./scenes/IntroScene";
+import { GuideScene } from "./scenes/GuideScene";
 
 // 애플리케이션 생성
 const app = new Application();
@@ -17,26 +19,38 @@ await app.init({
 document.body.appendChild(app.canvas);
 
 const resizeApp = () => {
-    setScale();
+    ScaleState.update();
 
-    const w = deviceType === "tablet" ? window.innerWidth : WIDTH * SCALE;
-    const h = deviceType === "tablet" ? HEIGHT * SCALE : window.innerHeight;
-
+    const w = Math.min(WIDTH, WIDTH * ScaleState.value);
+    const h = Math.min(HEIGHT, HEIGHT * ScaleState.value);
     app.renderer.resize(w, h);
-    app.stage.scale.set(SCALE);
+    app.stage.scale.set(ScaleState.value);
 };
 
 window.addEventListener("resize", resizeApp);
 resizeApp();
 
+(() => {
+    if (os === "IOS") SoundState.set(false);
+})();
+
 // 씬 매니저 생성
 const sceneManager = new SceneManager(app);
 
-// 로딩 씬 표시
-const loadingScene = new LoadingScene(app, () => {
-    // 로딩 완료 후 공부 화면으로 전환
-    sceneManager.switchScene(new StudyScene(app, startGame));
+// 로딩 씬 표시 후 인트로 전환
+const loadingScene = new LoadingScene(() => {
+    sceneManager.switchScene(new IntroScene({ onStudyStart: startStudy, onShowGuide: showGuide }));
 });
+
+// 가이드 시작 함수
+function showGuide() {
+    sceneManager.switchScene(new GuideScene());
+}
+
+// 공부 시작 함수
+function startStudy() {
+    sceneManager.switchScene(new StudyScene(app, backToStudy));
+}
 
 // 게임 시작 함수
 function startGame() {

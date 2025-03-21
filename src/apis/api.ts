@@ -4,12 +4,12 @@ import { littlefoxCookies, serviceSite } from "../config";
 let url = "";
 
 if (serviceSite === "littlefox") {
-    const lang = littlefoxCookies!.lang;
+    const lang = littlefoxCookies().lang;
 
     if (lang) {
-        url = lang === "kr" ? import.meta.env.VITE_LITTLEFOX_API_URL : `${import.meta.env.VITE_LITTLEFOX_GL_API_URL}${littlefoxCookies?.lang}`;
+        url = lang === "kr" ? import.meta.env.VITE_LITTLEFOX_API_URL : `${import.meta.env.VITE_LITTLEFOX_GL_API_URL}${littlefoxCookies().lang}`;
     } else {
-        throw Error;
+        console.log("lang이 존재하지 않습니다.");
     }
 } else {
     url = import.meta.env.VITE_FOXSCHOOL_API_URL;
@@ -19,9 +19,12 @@ export const api = ky.create({
     prefixUrl: url,
 });
 
-export const handleApi = async <T>(promise: Promise<T>) => {
+export const handleApi = async (promise: Promise<any>) => {
     try {
-        return await promise;
+        const response = await promise;
+        const data = await response.json();
+
+        return data;
     } catch (error) {
         console.log(error);
         return null;
