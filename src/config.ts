@@ -4,6 +4,7 @@ export const ASSETS: Record<string, Record<string, any>> = {
     loading: {},
     buttons: {},
     intro: {},
+    guide: {},
     study: {},
 };
 

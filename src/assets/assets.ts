@@ -40,8 +40,8 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
         guide: new URL("../assets/images/buttons/guide_btn.png", import.meta.url).href,
         guideTouch: new URL("../assets/images/buttons/guide_touch_btn.png", import.meta.url).href,
 
-        back: new URL("../assets/buttons/back_btn.png", import.meta.url).href,
-        backTouch: new URL("../assets/buttons/back_touch_btn.png", import.meta.url).href,
+        back: new URL("../assets/images/buttons/back_btn.png", import.meta.url).href,
+        backTouch: new URL("../assets/images/buttons/back_touch_btn.png", import.meta.url).href,
     },
 
     intro: {
@@ -53,6 +53,8 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
     guide: {
         bgHorizontal: new URL("../assets/images/guide/bg_horizontal.png", import.meta.url).href,
         bgVertical: new URL("../assets/images/guide/bg_vertical.png", import.meta.url).href,
+        krHorizontal: new URL("../assets/images/guide/guide_kr_horizontal.png", import.meta.url).href,
+        krVertical: new URL("../assets/images/guide/guide_kr_vertical.png", import.meta.url).href,
     },
 
     study: {},

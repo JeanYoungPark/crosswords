@@ -81,6 +81,13 @@ export class LoadingScene extends Container {
                 ASSETS.study[name] = ASSETS.study[name];
             }
 
+            // 가이드 (있다면)
+            for (const [name, path] of Object.entries(ASSET_PATHS.guide)) {
+                if (!ASSETS.guide) ASSETS.guide = {};
+                ASSETS.guide[name] = await Assets.load(path);
+                ASSETS.guide[name] = ASSETS.guide[name];
+            }
+
             setTimeout(() => {
                 if (this.onComplete) this.onComplete();
             }, 500);
