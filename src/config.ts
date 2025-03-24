@@ -1,7 +1,19 @@
-import { Texture } from "pixi.js";
 import { getCookie } from "./utils/common";
 
-export const IMAGE_ASSETS: Record<string, Record<string, Texture>> = {};
+export const ASSETS: Record<string, Record<string, any>> = {
+    loading: {},
+    buttons: {},
+    intro: {},
+    guide: {},
+    study: {},
+};
+
+export const AssetsState = {
+    value: {} as Record<string, Record<string, any>>,
+    set(value: Record<string, Record<string, any>>) {
+        this.value = value;
+    },
+};
 export const SoundState = {
     value: true,
     set(value: boolean) {

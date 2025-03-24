@@ -1,25 +1,15 @@
-// src/scenes/StudyScene.ts
-import { Application, Container } from "pixi.js";
-import { getContentInfo } from "../apis/get";
+import { Container } from "pixi.js";
+import { TopBar } from "../components/TopBar";
 
 export class StudyScene extends Container {
-    private app: Application;
-
-    constructor(app: Application, onStartGame: () => void) {
+    constructor() {
         super();
-        this.app = app;
 
-        this.getData();
-        this.createUI();
+        this.createTopBar();
     }
 
-    private async getData() {
-        const res = await getContentInfo();
-        console.log(res);
+    private createTopBar() {
+        const topbar = new TopBar();
+        this.addChild(topbar);
     }
-
-    private async createUI() {}
-
-    // 버튼 생성 헬퍼 함수
-    private createButton(label: string, x: number, y: number, onClick: () => void) {}
 }

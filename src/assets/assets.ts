@@ -7,44 +7,54 @@ const sortAnim = (anim: object) => {
 
 const fredAnim = import.meta.glob("../assets/images/loading/anim*.png", { eager: true });
 
-export const ASSETS: Record<string, Record<string, any>> = {
+export const ASSET_PATHS: Record<string, Record<string, any>> = {
     loading: {
-        bgBlock: (await import("../assets/images/loading/bg_block.png")).default,
-        logo: (await import("../assets/images/loading/logo.png")).default,
+        bgBlock: new URL("../assets/images/loading/bg_block.png", import.meta.url).href,
+        logo: new URL("../assets/images/loading/logo.png", import.meta.url).href,
         fred: sortAnim(fredAnim),
     },
 
     buttons: {
-        soundOn: (await import(`../assets/images/buttons/sound_on_btn.png`)).default,
-        soundOnTouch: (await import(`../assets/images/buttons/sound_on_touch_btn.png`)).default,
-        soundOff: (await import(`../assets/images/buttons/sound_off_btn.png`)).default,
-        soundOffTouch: (await import(`../assets/images/buttons/sound_off_touch_btn.png`)).default,
+        soundOn: new URL("../assets/images/buttons/sound_on_btn.png", import.meta.url).href,
+        soundOnTouch: new URL("../assets/images/buttons/sound_on_touch_btn.png", import.meta.url).href,
+        soundOff: new URL("../assets/images/buttons/sound_off_btn.png", import.meta.url).href,
+        soundOffTouch: new URL("../assets/images/buttons/sound_off_touch_btn.png", import.meta.url).href,
 
-        close: (await import(`../assets/images/buttons/close_btn.png`)).default,
-        closeTouch: (await import(`../assets/images/buttons/close_touch_btn.png`)).default,
+        close: new URL("../assets/images/buttons/close_btn.png", import.meta.url).href,
+        closeTouch: new URL("../assets/images/buttons/close_touch_btn.png", import.meta.url).href,
 
-        startHorizontal: (await import(`../assets/images/buttons/start_horizontal_btn.png`)).default,
-        startHorizontalTouch: (await import(`../assets/images/buttons/start_horizontal_touch_btn.png`)).default,
-        startVertical: (await import(`../assets/images/buttons/start_vertical_btn.png`)).default,
-        startVerticalTouch: (await import(`../assets/images/buttons/start_vertical_touch_btn.png`)).default,
+        startHorizontal: new URL("../assets/images/buttons/start_horizontal_btn.png", import.meta.url).href,
+        startHorizontalTouch: new URL("../assets/images/buttons/start_horizontal_touch_btn.png", import.meta.url).href,
+        startVertical: new URL("../assets/images/buttons/start_vertical_btn.png", import.meta.url).href,
+        startVerticalTouch: new URL("../assets/images/buttons/start_vertical_touch_btn.png", import.meta.url).href,
 
-        round1Horizontal: (await import(`../assets/images/buttons/round1_horizontal_btn.png`)).default,
-        round1HorizontalTouch: (await import(`../assets/images/buttons/round1_horizontal_touch_btn.png`)).default,
-        round1Vertical: (await import(`../assets/images/buttons/round1_vertical_btn.png`)).default,
-        round1VerticalTouch: (await import(`../assets/images/buttons/round1_vertical_touch_btn.png`)).default,
-        round2Horizontal: (await import(`../assets/images/buttons/round2_horizontal_btn.png`)).default,
-        round2HorizontalTouch: (await import(`../assets/images/buttons/round2_horizontal_touch_btn.png`)).default,
-        round2Vertical: (await import(`../assets/images/buttons/round2_vertical_btn.png`)).default,
-        round2VerticalTouch: (await import(`../assets/images/buttons/round2_vertical_touch_btn.png`)).default,
+        round1Horizontal: new URL("../assets/images/buttons/round1_horizontal_btn.png", import.meta.url).href,
+        round1HorizontalTouch: new URL("../assets/images/buttons/round1_horizontal_touch_btn.png", import.meta.url).href,
+        round1Vertical: new URL("../assets/images/buttons/round1_vertical_btn.png", import.meta.url).href,
+        round1VerticalTouch: new URL("../assets/images/buttons/round1_vertical_touch_btn.png", import.meta.url).href,
+        round2Horizontal: new URL("../assets/images/buttons/round2_horizontal_btn.png", import.meta.url).href,
+        round2HorizontalTouch: new URL("../assets/images/buttons/round2_horizontal_touch_btn.png", import.meta.url).href,
+        round2Vertical: new URL("../assets/images/buttons/round2_vertical_btn.png", import.meta.url).href,
+        round2VerticalTouch: new URL("../assets/images/buttons/round2_vertical_touch_btn.png", import.meta.url).href,
 
-        guide: (await import(`../assets/images/buttons/guide_btn.png`)).default,
-        guideTouch: (await import(`../assets/images/buttons/guide_touch_btn.png`)).default,
+        guide: new URL("../assets/images/buttons/guide_btn.png", import.meta.url).href,
+        guideTouch: new URL("../assets/images/buttons/guide_touch_btn.png", import.meta.url).href,
+
+        back: new URL("../assets/images/buttons/back_btn.png", import.meta.url).href,
+        backTouch: new URL("../assets/images/buttons/back_touch_btn.png", import.meta.url).href,
     },
 
     intro: {
-        bgBlock: (await import(`../assets/images/intro/bg_block.png`)).default,
-        title: (await import(`../assets/images/intro/title.png`)).default,
-        textBg: (await import(`../assets/images/intro/text_bg.png`)).default,
+        bgBlock: new URL("../assets/images/intro/bg_block.png", import.meta.url).href,
+        title: new URL("../assets/images/intro/title.png", import.meta.url).href,
+        textBg: new URL("../assets/images/intro/text_bg.png", import.meta.url).href,
+    },
+
+    guide: {
+        bgHorizontal: new URL("../assets/images/guide/bg_horizontal.png", import.meta.url).href,
+        bgVertical: new URL("../assets/images/guide/bg_vertical.png", import.meta.url).href,
+        krHorizontal: new URL("../assets/images/guide/guide_kr_horizontal.png", import.meta.url).href,
+        krVertical: new URL("../assets/images/guide/guide_kr_vertical.png", import.meta.url).href,
     },
 
     study: {},

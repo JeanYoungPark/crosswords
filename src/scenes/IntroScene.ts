@@ -1,19 +1,22 @@
-// src/scenes/StudyScene.ts
-import { Container, Graphics, Sprite, Text } from "pixi.js";
+import { Container, Sprite, Text } from "pixi.js";
 import { gsap } from "gsap";
-import { deviceType, gameType, HEIGHT, IMAGE_ASSETS, SoundState, SoundTextState, WIDTH } from "../config";
+import { deviceType, gameType, HEIGHT, ASSETS, SoundTextState, WIDTH } from "../config";
 import { getContentInfo } from "../apis/get";
 import { Button } from "../components/Button";
+import { TopBar } from "../components/TopBar";
+import { sceneManager } from "../main";
+import { GuideScene } from "./GuideScene";
+import { StudyScene } from "./StudyScene";
 
 export class IntroScene extends Container {
     private onStudyStart: () => void;
     private onShowGuide: () => void;
     private info: any;
 
-    constructor({ onStudyStart, onShowGuide }: { onStudyStart: () => void; onShowGuide: () => void }) {
+    constructor() {
         super();
-        this.onStudyStart = onStudyStart;
-        this.onShowGuide = onShowGuide;
+        this.onStudyStart = () => sceneManager.switchScene(new StudyScene());
+        this.onShowGuide = () => sceneManager.switchScene(new GuideScene());
 
         this.getData(() => this.createUI());
     }
@@ -37,13 +40,10 @@ export class IntroScene extends Container {
     }
 
     private createTopBar() {
-        const topBar = new Graphics();
-        topBar.rect(0, 0, WIDTH, 120);
-        topBar.fill(0x1163a6);
-        this.addChild(topBar);
-
-        this.createSoundBtn();
-        this.createCloseBtn();
+        const topbar = new TopBar();
+        topbar.soundBtn({ x: 60 });
+        topbar.closeBtn();
+        this.addChild(topbar);
     }
 
     private createBody() {
@@ -54,7 +54,7 @@ export class IntroScene extends Container {
     }
 
     private createBackground() {
-        const block = new Sprite(IMAGE_ASSETS.loading.bgBlock);
+        const block = new Sprite(ASSETS.loading.bgBlock);
         block.anchor.set(0.5);
         block.x = WIDTH / 2;
         block.y = HEIGHT / 2 - 100;
@@ -63,7 +63,7 @@ export class IntroScene extends Container {
     }
 
     private createTitle() {
-        const title = new Sprite(IMAGE_ASSETS.intro.title);
+        const title = new Sprite(ASSETS.intro.title);
         title.anchor.set(0.5);
         title.x = WIDTH / 2;
         title.y = HEIGHT / 2 - 100;
@@ -144,55 +144,6 @@ export class IntroScene extends Container {
         subName.y = this.info.mid_name ? 140 : 70;
 
         container.addChild(subName);
-    }
-
-    private createSoundBtn() {
-        const soundTexture = SoundState.value ? "soundOn" : "soundOff";
-        const sound = new Button(soundTexture, 60, 60);
-        const clickFn = () => {
-            const newState = !SoundState.value;
-            SoundState.set(newState);
-
-            const newTexture = newState ? "soundOn" : "soundOff";
-            sound.texture = IMAGE_ASSETS.buttons[newTexture];
-
-            textContainer.visible = newState ? false : true;
-        };
-        sound.onpointerup = clickFn;
-        this.addChild(sound);
-
-        const textContainer = new Container();
-        this.createSoundText(textContainer);
-    }
-
-    private createSoundText(container: Container) {
-        // text cont
-        container.x = 15;
-        container.y = 110;
-
-        // text bg
-        const textBg = new Sprite(IMAGE_ASSETS.intro.textBg);
-
-        const text = new Text({
-            text: SoundTextState.value,
-            style: {
-                fontSize: 39,
-                fill: 0xffffff,
-            },
-        });
-        text.x = 40;
-        text.y = 55;
-
-        container.addChild(textBg);
-        container.addChild(text);
-
-        this.addChild(container);
-        container.visible = SoundState.value ? false : true;
-    }
-
-    private createCloseBtn() {
-        const close = new Button("close", WIDTH - 60, 60);
-        this.addChild(close);
     }
 
     private createGameStartBtn() {
