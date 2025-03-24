@@ -1,19 +1,22 @@
 import { Container, Sprite, Text } from "pixi.js";
 import { gsap } from "gsap";
-import { deviceType, gameType, HEIGHT, IMAGE_ASSETS, SoundTextState, WIDTH } from "../config";
+import { deviceType, gameType, HEIGHT, ASSETS, SoundTextState, WIDTH } from "../config";
 import { getContentInfo } from "../apis/get";
 import { Button } from "../components/Button";
 import { TopBar } from "../components/TopBar";
+import { sceneManager } from "../main";
+import { GuideScene } from "./GuideScene";
+import { StudyScene } from "./StudyScene";
 
 export class IntroScene extends Container {
     private onStudyStart: () => void;
     private onShowGuide: () => void;
     private info: any;
 
-    constructor({ onStudyStart, onShowGuide }: { onStudyStart: () => void; onShowGuide: () => void }) {
+    constructor() {
         super();
-        this.onStudyStart = onStudyStart;
-        this.onShowGuide = onShowGuide;
+        this.onStudyStart = () => sceneManager.switchScene(new StudyScene());
+        this.onShowGuide = () => sceneManager.switchScene(new GuideScene());
 
         this.getData(() => this.createUI());
     }
@@ -37,7 +40,9 @@ export class IntroScene extends Container {
     }
 
     private createTopBar() {
-        const topbar = new TopBar({ scene: "intro" });
+        const topbar = new TopBar();
+        topbar.soundBtn({ x: 60 });
+        topbar.closeBtn();
         this.addChild(topbar);
     }
 
@@ -49,7 +54,7 @@ export class IntroScene extends Container {
     }
 
     private createBackground() {
-        const block = new Sprite(IMAGE_ASSETS.loading.bgBlock);
+        const block = new Sprite(ASSETS.loading.bgBlock);
         block.anchor.set(0.5);
         block.x = WIDTH / 2;
         block.y = HEIGHT / 2 - 100;
@@ -58,7 +63,7 @@ export class IntroScene extends Container {
     }
 
     private createTitle() {
-        const title = new Sprite(IMAGE_ASSETS.intro.title);
+        const title = new Sprite(ASSETS.intro.title);
         title.anchor.set(0.5);
         title.x = WIDTH / 2;
         title.y = HEIGHT / 2 - 100;

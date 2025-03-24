@@ -9,7 +9,7 @@ export class StudyScene extends Container {
     }
 
     private createTopBar() {
-        const topbar = new TopBar({ scene: "study" });
+        const topbar = new TopBar();
         this.addChild(topbar);
     }
 }

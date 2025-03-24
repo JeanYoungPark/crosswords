@@ -1,6 +1,6 @@
 import { Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
-import { HEIGHT, IMAGE_ASSETS, WIDTH } from "../config";
-import { ASSETS } from "../assets/assets";
+import { HEIGHT, WIDTH, ASSETS } from "../config";
+import { ASSET_PATHS } from "../assets/assets";
 
 export class LoadingScene extends Container {
     private onComplete: () => void;
@@ -17,30 +17,21 @@ export class LoadingScene extends Container {
     }
 
     private async showLoadingScreen() {
+        await this.loadInitialAssets();
+
         // background
-        const blockTexture = await Assets.load(ASSETS.loading.bgBlock);
-        const block = new Sprite(blockTexture);
+        const block = new Sprite(ASSETS.loading.bgBlock);
         block.anchor.set(0.5);
         block.x = WIDTH / 2;
         block.y = HEIGHT / 2;
 
         // logo
-        const logoTexture = await Assets.load(ASSETS.loading.logo);
-        const logo = Sprite.from(logoTexture);
+        const logo = Sprite.from(ASSETS.loading.logo);
         logo.anchor.set(0.5);
         logo.x = WIDTH / 2;
         logo.y = HEIGHT / 2 - 150;
 
-        // fred anim
-        const animImages = ASSETS.loading.fred;
-        const animTextureArr: Texture[] = [];
-
-        for (let i = 0; i < animImages.length; i++) {
-            const texture = await Assets.load(animImages[i]);
-            animTextureArr.push(texture);
-        }
-
-        const fredSprite = new AnimatedSprite(animTextureArr);
+        const fredSprite = new AnimatedSprite(ASSETS.loading.fred);
         fredSprite.scale = 0.8;
         fredSprite.anchor.set(0.5);
         fredSprite.x = WIDTH / 2;
@@ -53,23 +44,48 @@ export class LoadingScene extends Container {
         this.addChild(fredSprite);
     }
 
+    private async loadInitialAssets() {
+        // 로딩 화면에 필요한 에셋만 먼저 로드
+        ASSETS.loading.bgBlock = await Assets.load(ASSET_PATHS.loading.bgBlock);
+        ASSETS.loading.logo = await Assets.load(ASSET_PATHS.loading.logo);
+
+        // fred 애니메이션 로드
+        const animTextures: Texture[] = [];
+        for (const animPath of ASSET_PATHS.loading.fred) {
+            const texture = await Assets.load(animPath);
+            animTextures.push(texture);
+        }
+        ASSETS.loading.fred = animTextures;
+    }
+
     // 에셋 로딩
     private async loadAssets() {
-        const assetsToLoad: Record<string, any> = ASSETS;
-
-        for (const key of Object.keys(assetsToLoad)) {
-            const assets: Record<string, string> = assetsToLoad[key];
-
-            if (!IMAGE_ASSETS[key]) IMAGE_ASSETS[key] = {};
-
-            for (const [name, path] of Object.entries(assets)) {
-                const texture = await Assets.load(path);
-                IMAGE_ASSETS[key][name] = texture;
+        try {
+            for (const [name, path] of Object.entries(ASSET_PATHS.buttons)) {
+                if (!ASSETS.buttons) ASSETS.buttons = {};
+                ASSETS.buttons[name] = await Assets.load(path);
+                ASSETS.buttons[name] = ASSETS.buttons[name];
             }
-        }
 
-        setTimeout(() => {
-            if (this.onComplete) this.onComplete();
-        }, 500);
+            // 인트로 에셋 로드
+            for (const [name, path] of Object.entries(ASSET_PATHS.intro)) {
+                if (!ASSETS.intro) ASSETS.intro = {};
+                ASSETS.intro[name] = await Assets.load(path);
+                ASSETS.intro[name] = ASSETS.intro[name];
+            }
+
+            // 스터디 에셋 로드 (있다면)
+            for (const [name, path] of Object.entries(ASSET_PATHS.study)) {
+                if (!ASSETS.study) ASSETS.study = {};
+                ASSETS.study[name] = await Assets.load(path);
+                ASSETS.study[name] = ASSETS.study[name];
+            }
+
+            setTimeout(() => {
+                if (this.onComplete) this.onComplete();
+            }, 500);
+        } catch (error) {
+            console.error("에셋 로딩 중 오류 발생:", error);
+        }
     }
 }

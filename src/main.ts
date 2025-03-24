@@ -1,13 +1,12 @@
 import { SceneManager } from "./scenes/SceneManager";
 import { LoadingScene } from "./scenes/LoadingScene";
-import { StudyScene } from "./scenes/StudyScene";
 import { Application } from "pixi.js";
 import { HEIGHT, WIDTH, os, SoundState, ScaleState } from "./config";
-import "./style.css";
 import { IntroScene } from "./scenes/IntroScene";
-import { GuideScene } from "./scenes/GuideScene";
+import "./style.css";
 
 const app = new Application();
+export const sceneManager: SceneManager = new SceneManager(app);
 
 // 애플리케이션 생성
 async function init() {
@@ -16,19 +15,9 @@ async function init() {
 
     resizeApp();
 
-    const sceneManager = new SceneManager(app);
-
     const loadingScene = new LoadingScene(() => {
-        sceneManager.switchScene(new IntroScene({ onStudyStart: startStudy, onShowGuide: showGuide }));
+        sceneManager.switchScene(new IntroScene());
     });
-
-    function showGuide() {
-        sceneManager.switchScene(new GuideScene());
-    }
-
-    function startStudy() {
-        sceneManager.switchScene(new StudyScene());
-    }
 
     sceneManager.switchScene(loadingScene);
 }

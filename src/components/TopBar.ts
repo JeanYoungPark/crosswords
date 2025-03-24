@@ -1,15 +1,11 @@
 import { Container, Graphics, Sprite, Text } from "pixi.js";
-import { IMAGE_ASSETS, SoundState, SoundTextState, WIDTH } from "../config";
+import { ASSETS, SoundState, SoundTextState, WIDTH } from "../config";
 import { Button } from "./Button";
 
-type SceneType = "study" | "game" | "intro" | "guide";
-
 export class TopBar extends Container {
-    constructor({ scene }: { scene: SceneType }) {
+    constructor() {
         super();
-
         this.background();
-        this.buttons(scene);
     }
 
     private background() {
@@ -19,32 +15,18 @@ export class TopBar extends Container {
         this.addChild(topBar);
     }
 
-    private buttons(scene: SceneType) {
-        if (scene === "intro") {
-            this.soundBtn({ x: 60 });
-            this.closeBtn();
-        } else if (scene === "guide") {
-            this.backBtn();
-            this.soundBtn({ x: 160 });
-            this.closeBtn();
-        } else if (scene === "study") {
-            this.soundBtn({ x: 60 });
-            this.closeBtn();
-        } else if (scene === "game") {
-        }
-    }
-
-    private closeBtn() {
+    public closeBtn() {
         const close = new Button("close", WIDTH - 60, 60);
         this.addChild(close);
     }
 
-    private backBtn() {
+    public backBtn(callbackFn?: () => void) {
         const back = new Button("back", 60, 60);
+        back.onpointerup = callbackFn;
         this.addChild(back);
     }
 
-    private soundBtn({ x }: { x: number }) {
+    public soundBtn({ x }: { x: number }) {
         const textContainer = new Container();
         textContainer.x = x - 40;
         textContainer.y = 110;
@@ -65,7 +47,7 @@ export class TopBar extends Container {
             SoundState.set(newState);
 
             const newTexture = newState ? "soundOn" : "soundOff";
-            sound.texture = IMAGE_ASSETS.buttons[newTexture];
+            sound.texture = ASSETS.buttons[newTexture];
 
             container.visible = newState ? false : true;
         };
@@ -74,7 +56,7 @@ export class TopBar extends Container {
     }
 
     private soundText({ container }: { container: Container }) {
-        const textBg = new Sprite(IMAGE_ASSETS.intro.textBg);
+        const textBg = new Sprite(ASSETS.intro.textBg);
 
         const text = new Text({
             text: SoundTextState.value,
