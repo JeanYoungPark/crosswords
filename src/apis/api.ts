@@ -22,9 +22,7 @@ export const api = ky.create({
 export const handleApi = async (promise: Promise<any>) => {
     try {
         const response = await promise;
-        const data = await response.json();
-
-        return data;
+        return response;
     } catch (error) {
         console.log(error);
         return null;

@@ -1,5 +1,5 @@
 import { Container, Graphics, Sprite, Text } from "pixi.js";
-import { ASSETS, SoundState, SoundTextState, WIDTH } from "../config";
+import { ASSETS, SoundState, soundTextState, WIDTH } from "../config";
 import { Button } from "./Button";
 
 export class TopBar extends Container {
@@ -10,18 +10,18 @@ export class TopBar extends Container {
 
     private background() {
         const topBar = new Graphics();
-        topBar.rect(0, 0, WIDTH, 120);
+        topBar.rect(0, 0, WIDTH, 130);
         topBar.fill(0x1163a6);
         this.addChild(topBar);
     }
 
     public closeBtn() {
-        const close = new Button("close", WIDTH - 60, 60);
+        const close = new Button("close", WIDTH - 65, 65);
         this.addChild(close);
     }
 
     public backBtn(callbackFn?: () => void) {
-        const back = new Button("back", 60, 60);
+        const back = new Button("back", 65, 65);
         back.onpointerup = callbackFn;
         this.addChild(back);
     }
@@ -40,7 +40,7 @@ export class TopBar extends Container {
 
     private soundIcon({ container, x }: { container: Container; x: number }) {
         const soundTexture = SoundState.value ? "soundOn" : "soundOff";
-        const sound = new Button(soundTexture, x, 60);
+        const sound = new Button(soundTexture, x, 65);
 
         const clickFn = () => {
             const newState = !SoundState.value;
@@ -59,14 +59,14 @@ export class TopBar extends Container {
         const textBg = new Sprite(ASSETS.intro.textBg);
 
         const text = new Text({
-            text: SoundTextState.value,
+            text: soundTextState.value,
             style: {
                 fontSize: 39,
                 fill: 0xffffff,
             },
         });
         text.x = 40;
-        text.y = 55;
+        text.y = 60;
 
         container.addChild(textBg);
         container.addChild(text);

@@ -1,6 +1,8 @@
 import { Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
 import { HEIGHT, WIDTH, ASSETS } from "../config";
 import { ASSET_PATHS } from "../assets/assets";
+import { getTypingWordXml, getTypingWordXml1, getTypingWordXml2 } from "../apis/get";
+import Typing from "../utils/typing";
 
 export class LoadingScene extends Container {
     private onComplete: () => void;
@@ -86,6 +88,15 @@ export class LoadingScene extends Container {
                 if (!ASSETS.guide) ASSETS.guide = {};
                 ASSETS.guide[name] = await Assets.load(path);
                 ASSETS.guide[name] = ASSETS.guide[name];
+            }
+
+            const xml = await getTypingWordXml();
+            const xml1 = await getTypingWordXml1();
+            const xml2 = await getTypingWordXml2();
+
+            if (xml) {
+                const xmlString = await xml.text();
+                Typing.setData(xmlString);
             }
 
             setTimeout(() => {

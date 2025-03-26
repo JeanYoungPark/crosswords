@@ -8,19 +8,27 @@ export const ASSETS: Record<string, Record<string, any>> = {
     study: {},
 };
 
-export const AssetsState = {
-    value: {} as Record<string, Record<string, any>>,
-    set(value: Record<string, Record<string, any>>) {
+export const clueState = {
+    value: {},
+    set(value: string) {
         this.value = value;
     },
 };
+
+export const studyAnswerState = {
+    value: 0,
+    add() {
+        this.value += 1;
+    },
+};
+
 export const SoundState = {
     value: true,
     set(value: boolean) {
         this.value = value;
     },
 };
-export const SoundTextState = {
+export const soundTextState = {
     value: "버튼을 탭하고 소리를 켜세요.",
     update(value: string) {
         this.value = value;

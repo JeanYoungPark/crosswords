@@ -10,7 +10,7 @@ export const sceneManager: SceneManager = new SceneManager(app);
 
 // 애플리케이션 생성
 async function init() {
-    await app.init({ backgroundColor: "#b8dbff" });
+    await app.init({ backgroundColor: "#b8dbff", antialias: true });
     document.body.appendChild(app.canvas);
 
     resizeApp();

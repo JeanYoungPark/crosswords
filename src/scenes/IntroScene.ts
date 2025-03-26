@@ -1,6 +1,6 @@
 import { Container, Sprite, Text } from "pixi.js";
 import { gsap } from "gsap";
-import { deviceType, gameType, HEIGHT, ASSETS, SoundTextState, WIDTH } from "../config";
+import { deviceType, gameType, HEIGHT, ASSETS, soundTextState, WIDTH } from "../config";
 import { getContentInfo } from "../apis/get";
 import { Button } from "../components/Button";
 import { TopBar } from "../components/TopBar";
@@ -26,7 +26,7 @@ export class IntroScene extends Container {
 
         if (res?.code === 200) {
             const text = res.info.sound_text;
-            SoundTextState.update(text);
+            soundTextState.update(text);
 
             this.info = res.info;
             callback();
@@ -148,12 +148,11 @@ export class IntroScene extends Container {
 
     private createGameStartBtn() {
         const type = deviceType === "tablet" ? "Horizontal" : "Vertical";
+        const clickFn = () => this.onStudyStart();
 
         if (gameType === "word_master") {
             const x = deviceType === "tablet" ? 230 : 0;
             const y = deviceType === "tablet" ? 400 : 500;
-
-            const clickFn = () => this.onStudyStart();
 
             const round1 = new Button(`round1${type}`, WIDTH / 2 - x, HEIGHT / 2 + y);
             const round2 = new Button(`round2${type}`, WIDTH / 2 + x, HEIGHT / 2 + y + 150);
@@ -167,7 +166,6 @@ export class IntroScene extends Container {
             const y = deviceType === "tablet" ? 400 : 650;
             const start = new Button(`start${type}`, WIDTH / 2, HEIGHT / 2 + y);
 
-            const clickFn = () => this.onStudyStart();
             start.onpointerup = clickFn;
             this.addChild(start);
         }

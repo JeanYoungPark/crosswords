@@ -6,6 +6,27 @@ const sortAnim = (anim: object) => {
 };
 
 const fredAnim = import.meta.glob("../assets/images/loading/anim*.png", { eager: true });
+const keyboardImages: Record<string, { default: string }> = import.meta.glob("../assets/images/keyboard/*/*.png", { eager: true });
+
+const keyboardMap: Record<string, string> = Object.entries(keyboardImages).reduce((acc, [path, module]) => {
+    const match = path.match(/\/(horizontal||vertical)\/([a-z])(_touch)?\.png$/);
+
+    if (match) {
+        const capitalized = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+        const key = match[2] + capitalized + (match[3] ? "Touch" : "");
+        acc[key] = module.default;
+    }
+    return acc;
+}, {} as Record<string, string>);
+
+const keyboard = Object.fromEntries(
+    [..."abcdefghijklmnopqrstuvwxyz"].flatMap((letter) => [
+        [`${letter}Horizontal`, keyboardMap[`${letter}Horizontal`] || ""],
+        [`${letter}HorizontalTouch`, keyboardMap[`${letter}HorizontalTouch`] || ""],
+        [`${letter}Vertical`, keyboardMap[`${letter}Vertical`] || ""],
+        [`${letter}VerticalTouch`, keyboardMap[`${letter}VerticalTouch`] || ""],
+    ])
+);
 
 export const ASSET_PATHS: Record<string, Record<string, any>> = {
     loading: {
@@ -42,6 +63,16 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
 
         back: new URL("../assets/images/buttons/back_btn.png", import.meta.url).href,
         backTouch: new URL("../assets/images/buttons/back_touch_btn.png", import.meta.url).href,
+
+        ...keyboard,
+
+        deleteHorizontal: new URL("../assets/images/keyboard/horizontal/delete.png", import.meta.url).href,
+        deleteHorizontalTouch: new URL("../assets/images/keyboard/horizontal/delete_touch.png", import.meta.url).href,
+        deleteVertical: new URL("../assets/images/keyboard/vertical/delete.png", import.meta.url).href,
+        deleteVerticalTouch: new URL("../assets/images/keyboard/vertical/delete_touch.png", import.meta.url).href,
+
+        skip: new URL("../assets/images/buttons/skip_btn.png", import.meta.url).href,
+        skipTouch: new URL("../assets/images/buttons/skip_touch_btn.png", import.meta.url).href,
     },
 
     intro: {
@@ -57,5 +88,11 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
         krVertical: new URL("../assets/images/guide/guide_kr_vertical.png", import.meta.url).href,
     },
 
-    study: {},
+    study: {
+        input: new URL("../assets/images/study/input.png", import.meta.url).href,
+        inputFocus: new URL("../assets/images/study/focus.png", import.meta.url).href,
+        lightOn: new URL("../assets/images/study/light_on.png", import.meta.url).href,
+        lightOff: new URL("../assets/images/study/light_off.png", import.meta.url).href,
+        lightBg: new URL("../assets/images/study/light_bg.png", import.meta.url).href,
+    },
 };
