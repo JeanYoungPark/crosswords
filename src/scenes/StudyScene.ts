@@ -1,14 +1,27 @@
 import { Container, Graphics, Sprite, Text } from "pixi.js";
 import { TopBar } from "../components/TopBar";
-import { ASSETS, deviceType, HEIGHT, studyAnswerState, WIDTH } from "../config";
+import { ASSETS, deviceType, HEIGHT, littlefoxCookies, studyAnswerState, WIDTH } from "../config";
 import Typing from "../utils/typing";
 import { Button } from "../components/Button";
+import { Keyboard } from "../components/Keyboard";
+import { sceneManager } from "../main";
+import { GameScene } from "./GameScene";
 
 export class StudyScene extends Container {
     private inputIndex: number = 0;
     private answer: string = "";
     private inputTextArray: Text[] = [];
     private inputFocusArray: Sprite[] = [];
+
+    private light: Sprite = new Sprite();
+    private lightOnBg: Sprite = new Sprite();
+    private lightOffBg: Sprite = new Sprite();
+    private lightText: Text = new Text();
+
+    private text: Text = new Text();
+    private inputContainer: Container = new Container();
+
+    private infoContainer: Container = new Container();
 
     constructor() {
         super();
@@ -17,6 +30,7 @@ export class StudyScene extends Container {
 
         this.createTopBar();
         this.createBody();
+        this.createInfo();
     }
 
     private createTopBar() {
@@ -59,19 +73,38 @@ export class StudyScene extends Container {
         txt.x = w / 2;
         txt.y = bg.height / 2;
         container.addChild(txt);
+        this.text = txt;
 
         this.addChild(container);
     }
 
     private createLight() {
+        const lightOnBg = new Sprite(ASSETS.study.lightOnBg);
+        lightOnBg.anchor.set(0.5);
+        lightOnBg.x = WIDTH / 2;
+        lightOnBg.y = deviceType === "tablet" ? 635 : 855;
+        lightOnBg.visible = false;
+        this.addChild(lightOnBg);
+
+        const lightOffBg = new Sprite(ASSETS.study.lightOffBg);
+        lightOffBg.anchor.set(0.5);
+        lightOffBg.x = WIDTH / 2;
+        lightOffBg.y = deviceType === "tablet" ? 635 : 855;
+        lightOffBg.visible = false;
+        this.addChild(lightOffBg);
+
         const light = new Sprite(ASSETS.study.lightOff);
         light.anchor.set(0.5);
         light.x = WIDTH / 2;
         light.y = deviceType === "tablet" ? 635 : 855;
         this.addChild(light);
 
+        this.lightOnBg = lightOnBg;
+        this.lightOffBg = lightOffBg;
+        this.light = light;
+
         const text = new Text({
-            text: `${Number(studyAnswerState.value / (Typing?.data?.cross_puzzle.clues.length ?? 0))}%`,
+            text: `${Number(studyAnswerState.value / (Typing?.data?.cross_puzzle.clues.length ?? 0)) * 100}%`,
             style: {
                 fontSize: 39,
             },
@@ -81,9 +114,34 @@ export class StudyScene extends Container {
         text.y = deviceType === "tablet" ? 603 : 821;
 
         this.addChild(text);
+        this.lightText = text;
+    }
+
+    private turnOnLight() {
+        this.light.texture = ASSETS.study.lightOn;
+        this.lightOnBg.visible = true;
+
+        setTimeout(() => {
+            this.light.texture = ASSETS.study.lightOff;
+            this.lightOnBg.visible = false;
+        }, 1000);
+    }
+
+    private turnOffLight() {
+        this.light.texture = ASSETS.study.lightOff;
+        this.lightOffBg.visible = true;
+
+        setTimeout(() => {
+            this.lightOffBg.visible = false;
+        }, 500);
     }
 
     private createInput() {
+        if (this.inputContainer) {
+            this.removeChild(this.inputContainer);
+            this.inputContainer.destroy({ children: true }); // 메모리 해제
+        }
+
         const txt = Typing.clue?.word_view ?? "";
         const inputWidth = deviceType === "tablet" ? 102 : 70;
         const inputFocusWidth = deviceType === "tablet" ? 108 : 78;
@@ -125,112 +183,124 @@ export class StudyScene extends Container {
             container.addChild(inputFocus);
         }
 
+        this.inputFocusArray[0].visible = true;
         this.addChild(container);
-
-        this.updateFocus(0);
+        this.inputContainer = container;
     }
 
     private createKeyboard() {
-        const h = deviceType === "tablet" ? 410 : 460;
-        const bg = new Graphics();
-        bg.rect(0, 0, WIDTH, h);
-        bg.fill(0xa8c6e0);
-        bg.y = HEIGHT - h;
-        this.addChild(bg);
-
-        const type = deviceType === "tablet" ? "Horizontal" : "Vertical";
-        const keyRows = [
-            { letters: "qwertyuiop", yOffset: 80, keyCount: 10 },
-            { letters: "asdfghjkl", yOffset: 210, keyCount: 9 },
-            { letters: "zxcvbnm", yOffset: 340, keyCount: 8 },
-        ];
-
-        const clickFn = (e: Sprite, defaultTexture: string, key: string) => {
-            e.texture = ASSETS.buttons[defaultTexture];
-            this.updateText(key);
-
-            let nextIndex = this.inputIndex + 1;
-            if (nextIndex < (Typing.clue?.word_view.length ?? 0)) {
-                this.updateFocus(nextIndex);
-            }
-
+        const clickFn = (key: string) => {
+            this.updateFocus(key);
+            this.updateText(key === "delete" ? "" : key);
             this.isCorrect();
         };
 
-        const clickDeleteFn = (e: Sprite, defaultTexture: string) => {
-            e.texture = ASSETS.buttons[defaultTexture];
-            this.updateText("");
-
-            let nextIndex = this.inputIndex - 1;
-            if (this.inputIndex > 0) {
-                this.updateFocus(nextIndex);
-            }
-        };
-
-        // 공통된 함수로 키 생성
-        const createKeys = (letters: string, yOffset: number, keyCount: number, startX: number, isLastRow: boolean = false) => {
-            [...letters].map((letter, i) => {
-                const txt = `${letter}${type}`;
-                const key = new Button(txt, startX + i * 132, HEIGHT - h + yOffset);
-                key.onpointerup = () => clickFn(key, txt, letter);
-                this.addChild(key);
-            });
-
-            // 마지막 줄에만 delete 키 추가
-            if (isLastRow) {
-                const deleteTxt = `delete${type}`;
-                const deleteKey = new Button(deleteTxt, startX + (keyCount - 1) * 132, HEIGHT - h + yOffset);
-                deleteKey.onpointerup = () => clickDeleteFn(deleteKey, deleteTxt);
-                this.addChild(deleteKey);
-            }
-        };
-
-        // 각 줄에 맞춰 키를 생성 (마지막 줄에서만 delete 키 추가)
-        keyRows.forEach((row, idx) => {
-            const startX = (WIDTH - 116 * row.keyCount) / 2;
-            createKeys(row.letters, row.yOffset, row.keyCount, startX, idx === keyRows.length - 1);
-        });
+        const keyboard = new Keyboard(clickFn);
+        this.addChild(keyboard);
     }
 
-    private createButton() {
-        const h = deviceType === "tablet" ? 410 : 460;
+    private updateText(letter: string) {
+        let newText = "";
+        let letterIndex = this.inputIndex + (letter ? -1 : 0);
 
-        const help = new Button("guide", 65, HEIGHT - h - 60);
-        this.addChild(help);
-
-        const skip = new Button("skip", WIDTH - 163, HEIGHT - h - 60);
-        this.addChild(skip);
-    }
-
-    private updateText(text: string) {
-        let newText: string = "";
         this.inputTextArray.forEach((txt, idx) => {
-            if (idx === this.inputIndex) {
-                txt.text = text;
+            if (idx === letterIndex) {
+                txt.text = letter;
             }
             newText += txt.text as string;
         });
 
+        if (letter) {
+            if (newText === Typing.clue?.word_view.substring(0, letterIndex + 1)) {
+                this.turnOnLight();
+            } else {
+                this.turnOffLight();
+            }
+        }
+
         this.answer = newText;
     }
 
-    private updateFocus(inputIndex: number) {
-        this.inputFocusArray.forEach((focus, idx) => {
-            focus.visible = idx === inputIndex;
-        });
-        this.inputIndex = inputIndex;
+    private updateFocus(key: string) {
+        // 마지막 input에 text가 있다면 유지
+        const nextIndex = this.inputIndex + (key === "delete" ? -1 : 1);
+
+        if (nextIndex < 0) return;
+        if (nextIndex > (Typing.clue?.word_view.length || 0) && this.inputTextArray[(Typing.clue?.word_view.length || 0) - 1].text) return;
+
+        this.inputIndex = nextIndex;
+
+        if (nextIndex < (Typing.clue?.word_view.length || 0)) {
+            this.inputFocusArray.forEach((focus, idx) => {
+                focus.visible = idx === this.inputIndex;
+            });
+        }
     }
 
     private isCorrect() {
         if (this.answer === Typing.clue?.word_view) {
             Typing.getWord();
             studyAnswerState.add();
-
-            this.inputIndex = 0;
-            this.inputTextArray = [];
-            this.inputFocusArray = [];
+            this.init();
         }
     }
 
-    private init() {}
+    private createButton() {
+        const h = deviceType === "tablet" ? 410 : 460;
+
+        const help = new Button("guide", 65, HEIGHT - h - 60);
+        help.onpointerup = () => {
+            this.infoContainer.visible = true;
+        };
+        this.addChild(help);
+
+        const skip = new Button("skip", WIDTH - 163, HEIGHT - h - 60);
+        skip.onpointerup = () => {
+            sceneManager.switchScene(new GameScene());
+        };
+        this.addChild(skip);
+    }
+
+    private createInfo() {
+        const container = new Container();
+
+        const bg = new Graphics();
+        bg.rect(0, 0, WIDTH, HEIGHT);
+        bg.fill({ color: 0x000, alpha: 80 });
+
+        container.addChild(bg);
+
+        const box = new Graphics();
+        const w = deviceType === "tablet" ? 930 : 750;
+        const h = deviceType === "tablet" ? 450 : 680;
+
+        box.filletRect(WIDTH / 2 - w / 2, HEIGHT / 2 - h / 2, w, h, 20);
+        box.fill(0xffffff);
+        box.stroke({ width: 3, color: 0x6fcdf6, alpha: 1 });
+        container.addChild(box);
+
+        const lang = littlefoxCookies().lang.charAt(0).toUpperCase() + littlefoxCookies().lang.slice(1);
+        const txt = new Sprite(ASSETS.study[`info${lang}${deviceType === "tablet" ? "Horizontal" : "Vertical"}`]);
+        txt.x = WIDTH / 2 - w / 2;
+        txt.y = HEIGHT / 2 - h / 2;
+        container.addChild(txt);
+
+        const close = new Button("close", WIDTH / 2 + w / 2 - 20, HEIGHT / 2 - h / 2 + 20);
+        close.onpointerup = () => (container.visible = false);
+        container.addChild(close);
+
+        this.addChild(container);
+        this.infoContainer = container;
+    }
+
+    private init() {
+        this.inputIndex = 0;
+        this.answer = "";
+        this.inputTextArray = [];
+        this.inputFocusArray = [];
+
+        this.text.text = Typing.clue?.word_view ?? "";
+        this.lightText.text = `${Number(studyAnswerState.value / (Typing?.data?.cross_puzzle.clues.length ?? 0)) * 100}%`;
+        this.createInput();
+    }
 }
