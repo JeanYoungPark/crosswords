@@ -20,7 +20,7 @@ export class GuideScene extends Container {
         const topbar = new TopBar();
 
         topbar.backBtn(this.onBackToIntro);
-        topbar.soundBtn({ x: 160 });
+        topbar.soundBtn({ x: 170 });
         topbar.closeBtn();
         this.addChild(topbar);
     }
