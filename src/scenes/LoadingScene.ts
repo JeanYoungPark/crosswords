@@ -90,6 +90,13 @@ export class LoadingScene extends Container {
                 ASSETS.guide[name] = ASSETS.guide[name];
             }
 
+            // 퍼즐 (있다면)
+            for (const [name, path] of Object.entries(ASSET_PATHS.puzzle)) {
+                if (!ASSETS.puzzle) ASSETS.puzzle = {};
+                ASSETS.puzzle[name] = await Assets.load(path);
+                ASSETS.puzzle[name] = ASSETS.puzzle[name];
+            }
+
             const xml = await getTypingWordXml();
             const xml1 = await getTypingWordXml1();
             const xml2 = await getTypingWordXml2();

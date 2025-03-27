@@ -26,6 +26,12 @@ export class TopBar extends Container {
         this.addChild(back);
     }
 
+    public refreshBtn({ x, callback }: { x: number; callback?: () => void }) {
+        const refresh = new Button("refresh", x, 65);
+        refresh.onpointerup = callback;
+        this.addChild(refresh);
+    }
+
     public soundBtn({ x }: { x: number }) {
         const textContainer = new Container();
         textContainer.x = x - 40;

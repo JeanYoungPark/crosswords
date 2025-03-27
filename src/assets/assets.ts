@@ -73,6 +73,9 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
 
         skip: new URL("../assets/images/buttons/skip_btn.png", import.meta.url).href,
         skipTouch: new URL("../assets/images/buttons/skip_touch_btn.png", import.meta.url).href,
+
+        refresh: new URL("../assets/images/buttons/refresh_btn.png", import.meta.url).href,
+        refreshTouch: new URL("../assets/images/buttons/refresh_touch_btn.png", import.meta.url).href,
     },
 
     intro: {
@@ -103,5 +106,12 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
         infoCnVertical: new URL("../assets/images/study/info_cn_vertical.png", import.meta.url).href,
         infoHkVertical: new URL("../assets/images/study/info_hk_vertical.png", import.meta.url).href,
         infoJpVertical: new URL("../assets/images/study/info_jp_vertical.png", import.meta.url).href,
+    },
+
+    puzzle: {
+        topIconBgHorizontal: new URL("../assets/images/puzzle/top_icon_bg_horizontal.png", import.meta.url).href,
+        topIconBgVertical: new URL("../assets/images/puzzle/top_icon_bg_vertical.png", import.meta.url).href,
+        timeIcon: new URL("../assets/images/puzzle/time.png", import.meta.url).href,
+        checkIcon: new URL("../assets/images/puzzle/check.png", import.meta.url).href,
     },
 };
