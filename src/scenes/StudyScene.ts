@@ -174,7 +174,7 @@ export class StudyScene extends Container {
         for (let index = 0; index < txt.length; index++) {
             const inputFocus = new Sprite(ASSETS.study.inputFocus);
             inputFocus.anchor.set(0.5);
-            inputFocus.x = index * inputFocusWidth - index * 5;
+            inputFocus.x = index * inputFocusWidth - index * (deviceType === "tablet" ? 5 : 7.5);
             inputFocus.width = inputFocusWidth;
             inputFocus.height = inputFocusWidth;
             inputFocus.visible = false;
@@ -239,9 +239,13 @@ export class StudyScene extends Container {
 
     private isCorrect() {
         if (this.answer === Typing.clue?.word_view) {
-            Typing.getWord();
-            studyAnswerState.add();
-            this.init();
+            this.text.text = Typing.clue?.origin_longClue ?? "";
+
+            setTimeout(() => {
+                Typing.getWord();
+                studyAnswerState.add();
+                this.init();
+            }, 1000);
         }
     }
 
@@ -288,7 +292,7 @@ export class StudyScene extends Container {
         const close = new Button("close", WIDTH / 2 + w / 2 - 20, HEIGHT / 2 - h / 2 + 20);
         close.onpointerup = () => (container.visible = false);
         container.addChild(close);
-
+        container.zIndex = 1000;
         this.addChild(container);
         this.infoContainer = container;
     }

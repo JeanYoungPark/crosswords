@@ -29,8 +29,8 @@ export class Keyboard extends Container {
         const type = deviceType === "tablet" ? "Horizontal" : "Vertical";
         const keyRows = [
             { letters: "qwertyuiop", yOffset: 80, keyCount: 10 },
-            { letters: "asdfghjkl", yOffset: 210, keyCount: 9 },
-            { letters: "zxcvbnm", yOffset: 340, keyCount: 8 },
+            { letters: "asdfghjkl", yOffset: deviceType === "tablet" ? 210 : 230, keyCount: 9 },
+            { letters: "zxcvbnm", yOffset: deviceType === "tablet" ? 340 : 370, keyCount: 8 },
         ];
 
         const clickFn = (e: Sprite, defaultTexture: string, key: string) => {
@@ -42,7 +42,7 @@ export class Keyboard extends Container {
         const createKeys = (letters: string, yOffset: number, keyCount: number, startX: number, isLastRow: boolean = false) => {
             [...letters].map((letter, i) => {
                 const txt = `${letter}${type}`;
-                const key = new Button(txt, startX + i * 132, HEIGHT - this.h + yOffset);
+                const key = new Button(txt, startX + i * (deviceType === "tablet" ? 132 : 105), HEIGHT - this.h + yOffset);
 
                 key.onpointerup = () => clickFn(key, txt, letter);
                 this.addChild(key);
@@ -51,7 +51,7 @@ export class Keyboard extends Container {
             // 마지막 줄에만 delete 키 추가
             if (isLastRow) {
                 const deleteTxt = `delete${type}`;
-                const deleteKey = new Button(deleteTxt, startX + (keyCount - 1) * 132, HEIGHT - this.h + yOffset);
+                const deleteKey = new Button(deleteTxt, startX + (keyCount - 1) * (deviceType === "tablet" ? 132 : 108), HEIGHT - this.h + yOffset);
 
                 deleteKey.onpointerup = () => clickFn(deleteKey, deleteTxt, "delete");
                 this.addChild(deleteKey);
@@ -60,7 +60,7 @@ export class Keyboard extends Container {
 
         // 각 줄에 맞춰 키를 생성 (마지막 줄에서만 delete 키 추가)
         keyRows.forEach((row, idx) => {
-            const startX = (WIDTH - 116 * row.keyCount) / 2;
+            const startX = (WIDTH - (deviceType === "tablet" ? 116 : 95) * row.keyCount) / 2;
             createKeys(row.letters, row.yOffset, row.keyCount, startX, idx === keyRows.length - 1);
         });
     }
