@@ -1,5 +1,6 @@
 import { XWords } from "./crosswords";
 import Typing from "./typing";
+import CrosswordWorker from "../workers/crosswordWorker?worker";
 
 interface GridCell {
     word_h_idx: number;
@@ -41,35 +42,48 @@ export class Puzzle {
 
     // 데이터 취합
     public setData() {
-        this.grid = [];
-        this.list = [];
-        this.focus = null;
-        this.selected = null;
+        return new Promise<void>((resolve) => {
+            this.grid = [];
+            this.list = [];
+            this.focus = null;
+            this.selected = null;
 
-        var data = Typing.data?.cross_puzzle.clues.slice();
-        var cross_data = [];
+            var data = Typing.data?.cross_puzzle.clues.slice();
+            var cross_data = [];
 
-        if (!data) return;
+            if (!data) return;
 
-        this.max_cross = this.max_cross < data.length ? this.max_cross : data.length;
+            this.max_cross = this.max_cross < data.length ? this.max_cross : data.length;
 
-        for (var i = 0; i < this.max_cross; i++) {
-            var rnd = Math.floor(Math.random() * data.length);
-            cross_data.push(data[rnd]);
-            data.splice(rnd, 1);
-        }
+            for (var i = 0; i < this.max_cross; i++) {
+                var rnd = Math.floor(Math.random() * data.length);
+                cross_data.push(data[rnd]);
+                data.splice(rnd, 1);
+            }
 
-        const xWords = new XWords();
-        var grid = xWords.create(this.VERTICAL_BOXES, this.HORIZONTAL_BOXES, cross_data);
-        xWords.GetQuestionGrid();
-        this.list = xWords.QuestionList;
+            const worker = new CrosswordWorker();
+            worker.postMessage({
+                width: this.HORIZONTAL_BOXES,
+                height: this.VERTICAL_BOXES,
+                clues: cross_data,
+            });
 
-        this.repeat_count++;
-        if (this.list.length < this.min_cross && this.repeat_count < this.repeat_limit) {
-            this.setData();
-        } else {
-            this.setGrid();
-        }
+            worker.onmessage = (e) => {
+                const { questionList } = e.data;
+
+                this.list = questionList;
+                worker.terminate();
+
+                this.repeat_count++;
+                if (this.list.length < this.min_cross && this.repeat_count < this.repeat_limit) {
+                    this.setData();
+                    resolve();
+                } else {
+                    this.setGrid();
+                    resolve();
+                }
+            };
+        });
     }
 
     // 퍼즐 만들기
@@ -99,15 +113,15 @@ export class Puzzle {
         for (let i = 0; i < this.list.length; i++) {
             var puzzle = this.list[i];
             if (puzzle.d == 1) {
-                min_x = puzzle.x < min_x ? puzzle.x : min_x;
-                max_x = puzzle.x + puzzle.word.length > max_x ? puzzle.x + puzzle.word.length : max_x;
-                min_y = puzzle.y < min_y ? puzzle.y : min_y;
-                max_y = puzzle.y > max_y ? puzzle.y : max_y;
+                min_x = Math.min(puzzle.x, min_x);
+                max_x = Math.max(puzzle.x + puzzle.word.length, max_x);
+                min_y = Math.min(puzzle.y, min_y);
+                max_y = Math.max(puzzle.y, max_y);
             } else {
-                min_x = puzzle.x < min_x ? puzzle.x : min_x;
-                max_x = puzzle.x > max_x ? puzzle.x : max_x;
-                min_y = puzzle.y < min_y ? puzzle.y : min_y;
-                max_y = puzzle.y + puzzle.word.length > max_y ? puzzle.y + puzzle.word.length : max_y;
+                min_x = Math.min(puzzle.x, min_x);
+                max_x = Math.max(puzzle.x, max_x);
+                min_y = Math.min(puzzle.y, min_y);
+                max_y = Math.max(puzzle.y + puzzle.word.length, max_y);
             }
         }
 

@@ -67,7 +67,7 @@ export class XWords {
     private HEAD_CHAR = "#";
 
     private Grid: string[][] = [];
-    private QuestionGrid: string[][] = [];
+    public QuestionGrid: string[][] = [];
     private Words: Word[] = [];
     public QuestionList: QuestionItem[] = [];
 

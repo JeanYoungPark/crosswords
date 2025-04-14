@@ -37,14 +37,18 @@ export class GameScene extends Container {
 
         this.createTopBar();
         this.createBody();
-
         this.loadingScreen();
 
-        setTimeout(() => {
-            this.puzzle.setData();
-            this.initSetting();
-            this.loadingContainer.visible = false;
-        }, 0);
+        this.init();
+    }
+
+    private async init() {
+        await this.puzzle.setData();
+        this.initSetting();
+
+        this.createTopBar();
+        this.createBody();
+        this.loadingContainer.visible = false;
     }
 
     private loadingScreen() {
@@ -63,6 +67,8 @@ export class GameScene extends Container {
         fredSprite.play();
 
         this.loadingContainer.addChild(fredSprite);
+
+        this.addChild(this.loadingContainer);
     }
 
     private createTopBar() {
