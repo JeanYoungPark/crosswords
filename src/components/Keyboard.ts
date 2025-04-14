@@ -8,7 +8,7 @@ export class Keyboard extends Container {
     constructor(keyupEvent: (key: string) => void) {
         super();
 
-        this.h = deviceType === "tablet" ? 410 : 460;
+        this.h = deviceType === "tablet" ? 410 : 465;
         this.createKeyboard(keyupEvent);
     }
 
@@ -28,9 +28,9 @@ export class Keyboard extends Container {
     private createKey(keyupEvent: (key: string) => void) {
         const type = deviceType === "tablet" ? "Horizontal" : "Vertical";
         const keyRows = [
-            { letters: "qwertyuiop", yOffset: 80, keyCount: 10 },
-            { letters: "asdfghjkl", yOffset: deviceType === "tablet" ? 210 : 230, keyCount: 9 },
-            { letters: "zxcvbnm", yOffset: deviceType === "tablet" ? 340 : 370, keyCount: 8 },
+            { letters: "qwertyuiop", yOffset: 85, keyCount: 10 },
+            { letters: "asdfghjkl", yOffset: deviceType === "tablet" ? 210 : 235, keyCount: 9 },
+            { letters: "zxcvbnm", yOffset: deviceType === "tablet" ? 340 : 375, keyCount: 8 },
         ];
 
         const clickFn = (e: Sprite, defaultTexture: string, key: string) => {

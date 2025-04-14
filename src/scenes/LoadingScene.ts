@@ -1,8 +1,9 @@
 import { Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
 import { HEIGHT, WIDTH, ASSETS } from "../config";
-import { ASSET_PATHS } from "../assets/assets";
+import { ASSET_PATHS, SOUND_ASSET_PATHS } from "../assets/assets";
 import { getTypingWordXml, getTypingWordXml1, getTypingWordXml2 } from "../apis/get";
 import Typing from "../utils/typing";
+import { sound } from "@pixi/sound";
 
 export class LoadingScene extends Container {
     private onComplete: () => void;
@@ -16,6 +17,7 @@ export class LoadingScene extends Container {
 
         // 로고 이미지 로드 (실제 이미지 경로로 변경 필요)
         this.loadAssets();
+        this.loadSounds();
     }
 
     private async showLoadingScreen() {
@@ -112,5 +114,17 @@ export class LoadingScene extends Container {
         } catch (error) {
             console.error("에셋 로딩 중 오류 발생:", error);
         }
+    }
+
+    private async loadSounds() {
+        try {
+            for (const [name, path] of Object.entries(SOUND_ASSET_PATHS)) {
+                Assets.add({ alias: name, src: path });
+                const soundBuffer = await Assets.load(name);
+                if (!sound.exists(name)) {
+                    sound.add(name, soundBuffer);
+                }
+            }
+        } catch (error) {}
     }
 }

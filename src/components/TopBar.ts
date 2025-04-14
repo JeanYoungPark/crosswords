@@ -1,6 +1,7 @@
 import { Container, Graphics, Sprite, Text } from "pixi.js";
-import { ASSETS, SoundState, soundTextState, WIDTH } from "../config";
+import { ASSETS, soundState, soundTextState, WIDTH } from "../config";
 import { Button } from "./Button";
+import { sound } from "@pixi/sound";
 
 export class TopBar extends Container {
     constructor() {
@@ -15,24 +16,24 @@ export class TopBar extends Container {
         this.addChild(topBar);
     }
 
-    public closeBtn() {
+    closeBtn() {
         const close = new Button("close", WIDTH - 65, 65);
         this.addChild(close);
     }
 
-    public backBtn(callbackFn?: () => void) {
+    backBtn(callbackFn?: () => void) {
         const back = new Button("back", 65, 65);
         back.onpointerup = callbackFn;
         this.addChild(back);
     }
 
-    public refreshBtn({ x, callback }: { x: number; callback?: () => void }) {
+    refreshBtn({ x, callback }: { x: number; callback?: () => void }) {
         const refresh = new Button("refresh", x, 65);
         refresh.onpointerup = callback;
         this.addChild(refresh);
     }
 
-    public soundBtn({ x }: { x: number }) {
+    soundBtn({ x }: { x: number }) {
         const textContainer = new Container();
         textContainer.x = x - 40;
         textContainer.y = 110;
@@ -40,25 +41,28 @@ export class TopBar extends Container {
         this.soundIcon({ container: textContainer, x });
         this.soundText({ container: textContainer });
 
-        textContainer.visible = SoundState.value ? false : true;
+        textContainer.visible = soundState.value ? false : true;
         this.addChild(textContainer);
     }
 
     private soundIcon({ container, x }: { container: Container; x: number }) {
-        const soundTexture = SoundState.value ? "soundOn" : "soundOff";
-        const sound = new Button(soundTexture, x, 65);
+        const soundTexture = soundState.value ? "soundOn" : "soundOff";
+        const soundIcon = new Button(soundTexture, x, 65);
 
         const clickFn = () => {
-            const newState = !SoundState.value;
-            SoundState.set(newState);
+            const newState = !soundState.value;
+            soundState.set(newState);
 
             const newTexture = newState ? "soundOn" : "soundOff";
-            sound.texture = ASSETS.buttons[newTexture];
+            soundIcon.texture = ASSETS.buttons[newTexture];
 
             container.visible = newState ? false : true;
+
+            newState ? sound.unmuteAll() : sound.muteAll();
         };
-        sound.onpointerup = clickFn;
-        this.addChild(sound);
+
+        soundIcon.onpointerup = clickFn;
+        this.addChild(soundIcon);
     }
 
     private soundText({ container }: { container: Container }) {

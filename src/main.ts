@@ -1,7 +1,7 @@
 import { SceneManager } from "./scenes/SceneManager";
 import { LoadingScene } from "./scenes/LoadingScene";
 import { Application } from "pixi.js";
-import { HEIGHT, WIDTH, os, SoundState, ScaleState } from "./config";
+import { HEIGHT, WIDTH, os, soundState, ScaleState } from "./config";
 import { IntroScene } from "./scenes/IntroScene";
 import "./style.css";
 
@@ -34,7 +34,7 @@ const resizeApp = () => {
 window.addEventListener("resize", resizeApp);
 
 (() => {
-    if (os === "IOS") SoundState.set(false);
+    if (os === "IOS") soundState.set(false);
 })();
 
 init();

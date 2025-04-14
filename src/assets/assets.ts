@@ -76,6 +76,19 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
 
         refresh: new URL("../assets/images/buttons/refresh_btn.png", import.meta.url).href,
         refreshTouch: new URL("../assets/images/buttons/refresh_touch_btn.png", import.meta.url).href,
+
+        showWordHorizontal: new URL("../assets/images/puzzle/show_word_btn_horizontal.png", import.meta.url).href,
+        showWordHorizontalTouch: new URL("../assets/images/puzzle/show_word_touch_btn_horizontal.png", import.meta.url).href,
+        showWordVertical: new URL("../assets/images/puzzle/show_word_btn_vertical.png", import.meta.url).href,
+        showWordVerticalTouch: new URL("../assets/images/puzzle/show_word_touch_btn_vertical.png", import.meta.url).href,
+        showLetterHorizontal: new URL("../assets/images/puzzle/show_letter_btn_horizontal.png", import.meta.url).href,
+        showLetterHorizontalTouch: new URL("../assets/images/puzzle/show_letter_touch_btn_horizontal.png", import.meta.url).href,
+        showLetterVertical: new URL("../assets/images/puzzle/show_letter_btn_vertical.png", import.meta.url).href,
+        showLetterVerticalTouch: new URL("../assets/images/puzzle/show_letter_touch_btn_vertical.png", import.meta.url).href,
+        soundHorizontal: new URL("../assets/images/puzzle/sound_btn_horizontal.png", import.meta.url).href,
+        soundHorizontalTouch: new URL("../assets/images/puzzle/sound_touch_btn_horizontal.png", import.meta.url).href,
+        soundVertical: new URL("../assets/images/puzzle/sound_btn_vertical.png", import.meta.url).href,
+        soundVerticalTouch: new URL("../assets/images/puzzle/sound_touch_btn_vertical.png", import.meta.url).href,
     },
 
     intro: {
@@ -113,5 +126,19 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
         topIconBgVertical: new URL("../assets/images/puzzle/top_icon_bg_vertical.png", import.meta.url).href,
         timeIcon: new URL("../assets/images/puzzle/time.png", import.meta.url).href,
         checkIcon: new URL("../assets/images/puzzle/check.png", import.meta.url).href,
+        puzzleBgHorizontal: new URL("../assets/images/puzzle/puzzle_bg_horizontal.png", import.meta.url).href,
+        puzzleBgVertical: new URL("../assets/images/puzzle/puzzle_bg_vertical.png", import.meta.url).href,
+        puzzleBaseBg: new URL("../assets/images/puzzle/puzzle_base_bg.png", import.meta.url).href,
+        puzzleFocusBg: new URL("../assets/images/puzzle/puzzle_focus_bg.png", import.meta.url).href,
+        puzzleEmptyBg: new URL("../assets/images/puzzle/puzzle_empty_bg.png", import.meta.url).href,
+        puzzleCorrectBg: new URL("../assets/images/puzzle/puzzle_correct_bg.png", import.meta.url).href,
+        puzzleFocusLetter: new URL("../assets/images/puzzle/puzzle_focus_letter.png", import.meta.url).href,
+        particle: new URL("../assets/images/puzzle/particle.png", import.meta.url).href,
     },
+};
+
+export const SOUND_ASSET_PATHS: Record<string, string> = {
+    lobbyBgm: new URL("../assets/sounds/lobbyBgm.mp3", import.meta.url).href,
+    startBtn: new URL("../assets/sounds/startBtn.mp3", import.meta.url).href,
+    puzzleSetting: new URL("../assets/sounds/puzzleSetting.mp3", import.meta.url).href,
 };

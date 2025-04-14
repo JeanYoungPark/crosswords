@@ -1,4 +1,5 @@
 import { getCookie } from "./utils/common";
+import { Puzzle } from "./utils/puzzle";
 
 export const ASSETS: Record<string, Record<string, any>> = {
     loading: {},
@@ -22,7 +23,7 @@ export const studyAnswerState = {
     },
 };
 
-export const SoundState = {
+export const soundState = {
     value: true,
     set(value: boolean) {
         this.value = value;
@@ -35,6 +36,7 @@ export const soundTextState = {
     },
 };
 
+export const puzzle = new Puzzle();
 /**
  * cookie setting
  */

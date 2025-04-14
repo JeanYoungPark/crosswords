@@ -1,6 +1,6 @@
 import { xml2json } from "./xml2json";
 
-interface Clue {
+export interface Clue {
     clue: string;
     clue_check: string;
     longClue: string;
