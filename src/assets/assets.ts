@@ -141,4 +141,5 @@ export const SOUND_ASSET_PATHS: Record<string, string> = {
     lobbyBgm: new URL("../assets/sounds/lobbyBgm.mp3", import.meta.url).href,
     startBtn: new URL("../assets/sounds/startBtn.mp3", import.meta.url).href,
     puzzleSetting: new URL("../assets/sounds/puzzleSetting.mp3", import.meta.url).href,
+    backBtn: new URL("../assets/sounds/back.mp3", import.meta.url).href,
 };

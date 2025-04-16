@@ -16,10 +16,10 @@ export const clueState = {
     },
 };
 
-export const studyAnswerState = {
-    value: 0,
-    add() {
-        this.value += 1;
+export const studyCompleteState = {
+    value: false,
+    setComplete() {
+        this.value = true;
     },
 };
 

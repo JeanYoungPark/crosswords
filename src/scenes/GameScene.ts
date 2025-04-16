@@ -7,8 +7,11 @@ import { Puzzle } from "../utils/puzzle";
 import { Button } from "../components/Button";
 import gsap from "gsap";
 import { sound, Sound } from "@pixi/sound";
+import { sceneManager } from "../main";
+import { StudyScene } from "./StudyScene";
 
 export class GameScene extends Container {
+    private onStudyStart: () => void;
     private loadingContainer: Container = new Container();
     private puzzle = new Puzzle();
 
@@ -32,8 +35,15 @@ export class GameScene extends Container {
     private word_idx: number = -1;
     private clue_correct: Text = new Text();
 
+    private limitTime: number = 0;
+    private timeText: Text = new Text();
+
+    private state: string = "STAND_BY";
+
     constructor() {
         super();
+
+        this.onStudyStart = () => sceneManager.switchScene(new StudyScene());
 
         this.createTopBar();
         this.createBody();
@@ -46,6 +56,7 @@ export class GameScene extends Container {
         await this.puzzle.setData();
         this.initSetting();
 
+        this.state = "START";
         this.createTopBar();
         this.createBody();
         this.loadingContainer.visible = false;
@@ -72,12 +83,16 @@ export class GameScene extends Container {
     }
 
     private createTopBar() {
+        const clickBack = () => {
+            this.onStudyStart();
+        };
+
         const clickRefresh = () => {
             console.log(clickRefresh);
         };
 
         const topbar = new TopBar();
-        topbar.backBtn();
+        topbar.backBtn(clickBack);
         topbar.closeBtn();
         topbar.refreshBtn({ x: 170, callback: clickRefresh });
 
@@ -180,9 +195,8 @@ export class GameScene extends Container {
         this.hint_letter_count = Math.floor(this.puzzle.list.length * 0.6);
         this.hint_sound_count = Math.floor(this.puzzle.list.length * 0.4);
 
-        if (soundState.value) {
-            sound.play("puzzleSetting");
-        }
+        // 시간 세팅
+        this.limitTime = this.puzzle.list.length * 30;
     }
 
     private createQuizBlockBg() {
@@ -306,8 +320,12 @@ export class GameScene extends Container {
         timeIcon.x = deviceType === "tablet" ? -5 : 0;
         timeIcon.y = deviceType === "tablet" ? -2 : 0;
 
+        const limitTime = this.limitTime;
+        const minute = Math.floor(limitTime) / 60 < 10 ? `0${Math.floor(limitTime / 60)}` : Math.floor(limitTime / 60);
+        const second = Math.floor(limitTime % 60) < 10 ? `0${Math.floor(limitTime % 60)}` : Math.floor(limitTime % 60);
+
         const time = new Text({
-            text: "00:00",
+            text: `${minute}:${second}`,
             style: {
                 fontSize: 50,
                 fill: 0xffffff,
@@ -320,6 +338,23 @@ export class GameScene extends Container {
         container.addChild(bg);
         container.addChild(timeIcon);
         container.addChild(time);
+        this.timeText = time;
+
+        const startTimer = () => {
+            setTimeout(() => {
+                if (this.limitTime === -1) return;
+                this.limitTime -= 1;
+                const limitTime = this.limitTime;
+                const minute = Math.floor(limitTime / 60) < 10 ? `0${Math.floor(limitTime / 60)}` : Math.floor(limitTime / 60);
+                const second = Math.floor(limitTime % 60) < 10 ? `0${Math.floor(limitTime % 60)}` : Math.floor(limitTime % 60);
+
+                this.timeText.text = `${minute}:${second}`;
+
+                startTimer();
+            }, 1000);
+        };
+
+        if (this.state === "START") startTimer();
 
         return container;
     }

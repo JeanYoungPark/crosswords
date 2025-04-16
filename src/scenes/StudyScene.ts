@@ -1,11 +1,12 @@
 import { Container, Graphics, Sprite, Text } from "pixi.js";
 import { TopBar } from "../components/TopBar";
-import { ASSETS, deviceType, HEIGHT, littlefoxCookies, studyAnswerState, WIDTH } from "../config";
+import { ASSETS, deviceType, HEIGHT, littlefoxCookies, studyCompleteState, WIDTH } from "../config";
 import Typing from "../utils/typing";
 import { Button } from "../components/Button";
 import { Keyboard } from "../components/Keyboard";
 import { sceneManager } from "../main";
 import { GameScene } from "./GameScene";
+import { Sound, sound } from "@pixi/sound";
 
 export class StudyScene extends Container {
     private inputIndex: number = 0;
@@ -20,8 +21,9 @@ export class StudyScene extends Container {
 
     private text: Text = new Text();
     private inputContainer: Container = new Container();
-
     private infoContainer: Container = new Container();
+
+    private timeoutId?: ReturnType<typeof setTimeout>;
 
     constructor() {
         super();
@@ -104,7 +106,7 @@ export class StudyScene extends Container {
         this.light = light;
 
         const text = new Text({
-            text: `${Number(studyAnswerState.value / (Typing?.data?.cross_puzzle.clues.length ?? 0)) * 100}%`,
+            text: `${Number((Typing.count - 1) / Typing.data!.cross_puzzle.clues.length) * 100}%`,
             style: {
                 fontSize: 39,
             },
@@ -117,14 +119,18 @@ export class StudyScene extends Container {
         this.lightText = text;
     }
 
-    private turnOnLight() {
+    private turnOnLight(time = 500) {
         this.light.texture = ASSETS.study.lightOn;
         this.lightOnBg.visible = true;
 
-        setTimeout(() => {
+        if (this.timeoutId) {
+            clearTimeout(this.timeoutId);
+        }
+
+        this.timeoutId = setTimeout(() => {
             this.light.texture = ASSETS.study.lightOff;
             this.lightOnBg.visible = false;
-        }, 1000);
+        }, time);
     }
 
     private turnOffLight() {
@@ -239,11 +245,11 @@ export class StudyScene extends Container {
 
     private isCorrect() {
         if (this.answer === Typing.clue?.word_view) {
-            this.text.text = Typing.clue?.origin_longClue ?? "";
+            this.turnOnLight(1000);
+            const sound = Sound.from(Typing.clue.sound!);
+            sound.play();
 
             setTimeout(() => {
-                Typing.getWord();
-                studyAnswerState.add();
                 this.init();
             }, 1000);
         }
@@ -261,6 +267,7 @@ export class StudyScene extends Container {
         const skip = new Button("skip", WIDTH - 163, HEIGHT - h - 60);
         skip.onpointerup = () => {
             sceneManager.switchScene(new GameScene());
+            sound.play("puzzleSetting");
         };
         this.addChild(skip);
     }
@@ -298,13 +305,23 @@ export class StudyScene extends Container {
     }
 
     private init() {
+        const isDone = Typing.count >= Typing.data!.cross_puzzle.clues.length;
+
+        if (isDone) {
+            studyCompleteState.setComplete();
+            Typing.count = 0;
+        }
+
+        Typing.getWord();
+
         this.inputIndex = 0;
         this.answer = "";
         this.inputTextArray = [];
         this.inputFocusArray = [];
-
         this.text.text = Typing.clue?.word_view ?? "";
-        this.lightText.text = `${Number(studyAnswerState.value / (Typing?.data?.cross_puzzle.clues.length ?? 0)) * 100}%`;
+
+        const percent = !studyCompleteState.value ? Number((Typing.count - 1) / Typing.data!.cross_puzzle.clues.length) * 100 : 100;
+        this.lightText.text = `${percent}%`;
         this.createInput();
     }
 }

@@ -23,6 +23,9 @@ export class TopBar extends Container {
 
     backBtn(callbackFn?: () => void) {
         const back = new Button("back", 65, 65);
+        back.onpointerdown = () => {
+            sound.play("backBtn");
+        };
         back.onpointerup = callbackFn;
         this.addChild(back);
     }
