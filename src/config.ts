@@ -29,6 +29,7 @@ export const soundState = {
         this.value = value;
     },
 };
+
 export const soundTextState = {
     value: "버튼을 탭하고 소리를 켜세요.",
     update(value: string) {
@@ -36,6 +37,12 @@ export const soundTextState = {
     },
 };
 
+export const wordMasterRound = {
+    value: "",
+    update(round: string) {
+        this.value = round;
+    },
+};
 export const puzzle = new Puzzle();
 /**
  * cookie setting

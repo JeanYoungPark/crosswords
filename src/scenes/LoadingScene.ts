@@ -1,5 +1,5 @@
 import { Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
-import { HEIGHT, WIDTH, ASSETS } from "../config";
+import { HEIGHT, WIDTH, ASSETS, gameType } from "../config";
 import { ASSET_PATHS, SOUND_ASSET_PATHS } from "../assets/assets";
 import { getTypingWordXml, getTypingWordXml1, getTypingWordXml2 } from "../apis/get";
 import Typing from "../utils/typing";
@@ -99,13 +99,25 @@ export class LoadingScene extends Container {
                 ASSETS.puzzle[name] = ASSETS.puzzle[name];
             }
 
-            const xml = await getTypingWordXml();
-            const xml1 = await getTypingWordXml1();
-            const xml2 = await getTypingWordXml2();
+            if (gameType === "word_master") {
+                const xml1 = await getTypingWordXml1();
+                const xml2 = await getTypingWordXml2();
 
-            if (xml) {
-                const xmlString = await xml.text();
-                Typing.setData(xmlString);
+                if (xml1) {
+                    const xmlString = await xml1.text();
+                    Typing.round1_xml(xmlString);
+                }
+
+                if (xml2) {
+                    const xmlString = await xml2.text();
+                    Typing.round2_xml(xmlString);
+                }
+            } else {
+                const xml = await getTypingWordXml();
+                if (xml) {
+                    const xmlString = await xml.text();
+                    Typing.setData(xmlString);
+                }
             }
 
             setTimeout(() => {

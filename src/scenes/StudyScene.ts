@@ -180,7 +180,7 @@ export class StudyScene extends Container {
         for (let index = 0; index < txt.length; index++) {
             const inputFocus = new Sprite(ASSETS.study.inputFocus);
             inputFocus.anchor.set(0.5);
-            inputFocus.x = index * inputFocusWidth - index * (deviceType === "tablet" ? 5 : 7.5);
+            inputFocus.x = index * inputFocusWidth - index * (deviceType === "tablet" ? 6 : 8);
             inputFocus.width = inputFocusWidth;
             inputFocus.height = inputFocusWidth;
             inputFocus.visible = false;
@@ -320,7 +320,7 @@ export class StudyScene extends Container {
         this.inputFocusArray = [];
         this.text.text = Typing.clue?.word_view ?? "";
 
-        const percent = !studyCompleteState.value ? Number((Typing.count - 1) / Typing.data!.cross_puzzle.clues.length) * 100 : 100;
+        const percent = !studyCompleteState.value ? Math.floor(Number((Typing.count - 1) / Typing.data!.cross_puzzle.clues.length) * 100) : 100;
         this.lightText.text = `${percent}%`;
         this.createInput();
     }

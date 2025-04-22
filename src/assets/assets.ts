@@ -89,6 +89,12 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
         soundHorizontalTouch: new URL("../assets/images/puzzle/sound_touch_btn_horizontal.png", import.meta.url).href,
         soundVertical: new URL("../assets/images/puzzle/sound_btn_vertical.png", import.meta.url).href,
         soundVerticalTouch: new URL("../assets/images/puzzle/sound_touch_btn_vertical.png", import.meta.url).href,
+
+        replay: new URL("../assets/images/buttons/replay_btn.png", import.meta.url).href,
+        replayTouch: new URL("../assets/images/buttons/replay_touch_btn.png", import.meta.url).href,
+
+        tryAgain: new URL("../assets/images/buttons/tryAgain_btn.png", import.meta.url).href,
+        tryAgainTouch: new URL("../assets/images/buttons/tryAgain_touch_btn.png", import.meta.url).href,
     },
 
     intro: {
@@ -134,6 +140,10 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
         puzzleCorrectBg: new URL("../assets/images/puzzle/puzzle_correct_bg.png", import.meta.url).href,
         puzzleFocusLetter: new URL("../assets/images/puzzle/puzzle_focus_letter.png", import.meta.url).href,
         particle: new URL("../assets/images/puzzle/particle.png", import.meta.url).href,
+        tryAgain: new URL("../assets/images/puzzle/tryAgain.png", import.meta.url).href,
+        scoreBg: new URL("../assets/images/puzzle/score_bg.png", import.meta.url).href,
+        correct: new URL("../assets/images/puzzle/correct.png", import.meta.url).href,
+        incorrect: new URL("../assets/images/puzzle/incorrect.png", import.meta.url).href,
     },
 };
 
@@ -142,4 +152,8 @@ export const SOUND_ASSET_PATHS: Record<string, string> = {
     startBtn: new URL("../assets/sounds/startBtn.mp3", import.meta.url).href,
     puzzleSetting: new URL("../assets/sounds/puzzleSetting.mp3", import.meta.url).href,
     backBtn: new URL("../assets/sounds/back.mp3", import.meta.url).href,
+    showAWord: new URL("../assets/sounds/showAWord.mp3", import.meta.url).href,
+    showALetter: new URL("../assets/sounds/showALetter.mp3", import.meta.url).href,
+    breakIce: new URL("../assets/sounds/breakingIce.mp3", import.meta.url).href,
+    noHint: new URL("../assets/sounds/noHint.mp3", import.meta.url).href,
 };

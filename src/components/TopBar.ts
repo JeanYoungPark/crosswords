@@ -1,7 +1,8 @@
 import { Container, Graphics, Sprite, Text } from "pixi.js";
-import { ASSETS, soundState, soundTextState, WIDTH } from "../config";
+import { ASSETS, os, soundState, soundTextState, WIDTH } from "../config";
 import { Button } from "./Button";
 import { sound } from "@pixi/sound";
+import { webviewClose } from "../utils/common";
 
 export class TopBar extends Container {
     constructor() {
@@ -18,6 +19,9 @@ export class TopBar extends Container {
 
     closeBtn() {
         const close = new Button("close", WIDTH - 65, 65);
+        close.onpointerup = () => {
+            webviewClose(os);
+        };
         this.addChild(close);
     }
 
@@ -32,6 +36,9 @@ export class TopBar extends Container {
 
     refreshBtn({ x, callback }: { x: number; callback?: () => void }) {
         const refresh = new Button("refresh", x, 65);
+        refresh.onpointerdown = () => {
+            sound.play("puzzleSetting");
+        };
         refresh.onpointerup = callback;
         this.addChild(refresh);
     }

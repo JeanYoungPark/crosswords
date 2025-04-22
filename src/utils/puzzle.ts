@@ -1,4 +1,3 @@
-import { XWords } from "./crosswords";
 import Typing from "./typing";
 import CrosswordWorker from "../workers/crosswordWorker?worker";
 
@@ -198,14 +197,8 @@ export class Puzzle {
     }
 
     // 정답 체크
-    private correctAllCheck() {
-        var correct_count = 0;
-        for (let i = 0; i < this.list.length; i++) {
-            if (this.list[i].mode == "correct") correct_count++;
-        }
-        if (correct_count >= this.list.length) return "correct_all";
-
-        return correct_count;
+    public correctAllCheck() {
+        return this.list.every((list) => list.mode === "correct");
     }
 
     // 오답 체크
@@ -219,11 +212,10 @@ export class Puzzle {
     }
 
     // 짧은 설명 가져오기
-    private clueShort(idx: number) {
-        var clue = this.num_chars.substring(idx, idx + 1) + " " + this.list[idx].clue;
-        //console.log(clue);
-        return clue.length > 25 ? clue.substring(0, 25) + "..." : clue;
-    }
+    // public clueShort(idx: number) {
+    //     var clue = this.num_chars.substring(idx, idx + 1) + " " + this.list[idx].clue;
+    //     return clue.length > 25 ? clue.substring(0, 25) + "..." : clue;
+    // }
 
     // 퍼즐 데이터 설정
     public setItem(x: number, y: number, d: number, item: string) {

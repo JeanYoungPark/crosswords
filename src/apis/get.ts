@@ -36,9 +36,7 @@ export const getTypingWordXml = async () => {
         res = await handleApi(api(url));
     } else {
         if (gameType !== "word_master") {
-            // let url = `crossword_h5_v2_api/view/${fcId}`;
             let url = `crossword_h5/view/${fcId}`;
-            // dev에서 쓰는 api주소와 실제 사용하는 api의 주소가 다름 그리고 응답값도 다른듯 ?
             res = await handleApi(api(url));
         }
     }

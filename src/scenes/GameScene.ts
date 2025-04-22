@@ -1,21 +1,26 @@
 // src/scenes/GameScene.ts
-import { AnimatedSprite, Container, Graphics, Sprite, Text } from "pixi.js";
+import { AnimatedSprite, Container, Graphics, Sprite, Text, TextStyle } from "pixi.js";
 import { TopBar } from "../components/TopBar";
 import { Keyboard } from "../components/Keyboard";
-import { ASSETS, deviceType, HEIGHT, soundState, WIDTH } from "../config";
+import { ASSETS, deviceType, gameType, HEIGHT, os, WIDTH, wordMasterRound } from "../config";
 import { Puzzle } from "../utils/puzzle";
 import { Button } from "../components/Button";
 import gsap from "gsap";
 import { sound, Sound } from "@pixi/sound";
 import { sceneManager } from "../main";
 import { StudyScene } from "./StudyScene";
+import { webviewClose } from "../utils/common";
+import Typing from "../utils/typing";
 
 export class GameScene extends Container {
     private onStudyStart: () => void;
+    private onGameStart: () => void;
     private loadingContainer: Container = new Container();
+    private finishContainer: Container = new Container();
     private puzzle = new Puzzle();
 
     private description: Text = new Text();
+    private devAnswer: Text = new Text();
     private blockGrid: (Sprite | null)[][] = [];
     private textGrid: (Text | null)[][] = [];
     private focusSprite: Sprite = new Sprite();
@@ -44,6 +49,7 @@ export class GameScene extends Container {
         super();
 
         this.onStudyStart = () => sceneManager.switchScene(new StudyScene());
+        this.onGameStart = () => sceneManager.switchScene(new GameScene());
 
         this.createTopBar();
         this.createBody();
@@ -60,26 +66,8 @@ export class GameScene extends Container {
         this.createTopBar();
         this.createBody();
         this.loadingContainer.visible = false;
-    }
-
-    private loadingScreen() {
-        const bg = new Graphics();
-        bg.rect(0, 0, WIDTH, HEIGHT);
-        bg.fill(0x000000, 0.5);
-
-        this.loadingContainer.addChild(bg);
-
-        const fredSprite = new AnimatedSprite(ASSETS.loading.fred);
-        fredSprite.scale = 0.8;
-        fredSprite.anchor.set(0.5);
-        fredSprite.x = WIDTH / 2;
-        fredSprite.y = HEIGHT / 2 + 100;
-        fredSprite.animationSpeed = 0.2; // 애니메이션 속도 설정 (값 조정 가능)
-        fredSprite.play();
-
-        this.loadingContainer.addChild(fredSprite);
-
-        this.addChild(this.loadingContainer);
+        this.finishScreen();
+        this.finishContainer.visible = false;
     }
 
     private createTopBar() {
@@ -88,7 +76,7 @@ export class GameScene extends Container {
         };
 
         const clickRefresh = () => {
-            console.log(clickRefresh);
+            this.onGameStart();
         };
 
         const topbar = new TopBar();
@@ -171,9 +159,10 @@ export class GameScene extends Container {
 
     private updateDescription() {
         this.description.text = this.puzzle.selected?.longClue ?? "";
+        this.devAnswer.text = this.puzzle.selected?.word ?? "";
     }
 
-    private updateText(letter: string) {
+    private async updateText(letter: string) {
         if (!this.puzzle.focus) return;
 
         const isHorizontal = this.puzzle.selected!.d === 1;
@@ -342,7 +331,12 @@ export class GameScene extends Container {
 
         const startTimer = () => {
             setTimeout(() => {
-                if (this.limitTime === -1) return;
+                if (this.limitTime <= 0 || this.state === "FINISH") {
+                    this.state = "FINISH";
+                    this.finishContainer.visible = true;
+                    return;
+                }
+
                 this.limitTime -= 1;
                 const limitTime = this.limitTime;
                 const minute = Math.floor(limitTime / 60) < 10 ? `0${Math.floor(limitTime / 60)}` : Math.floor(limitTime / 60);
@@ -411,6 +405,9 @@ export class GameScene extends Container {
             text: this.puzzle.selected?.longClue,
             style: {
                 fontSize: 55,
+                wordWrap: true,
+                wordWrapWidth: w - 40,
+                lineHeight: 65,
             },
         });
 
@@ -420,6 +417,8 @@ export class GameScene extends Container {
         this.description = txt;
 
         this.addChild(txt);
+
+        this.isDev(w, h, x, y);
     }
 
     private createButton() {
@@ -442,6 +441,7 @@ export class GameScene extends Container {
                 this.puzzle.setItem(x, y, selected.d, type);
 
                 if (type === "showaword") {
+                    sound.play("showAWord");
                     this.hint_word_count -= 1;
                     this.hint_word.text = this.hint_word_count;
 
@@ -453,16 +453,23 @@ export class GameScene extends Container {
                         this.updateText(this.puzzle.grid[x][y].char);
                     }
                 } else if (type === "showaletter") {
-                    this.hint_letter_count -= 1;
-                    this.hint_letter.text = this.hint_letter_count;
+                    if (focus.mode === "input") {
+                        sound.play("showALetter");
+                        this.hint_letter_count -= 1;
+                        this.hint_letter.text = this.hint_letter_count;
 
-                    this.puzzle.setFocusXY(x, y);
-                    this.updateText(this.puzzle.grid[x][y].char);
+                        this.puzzle.setFocusXY(x, y);
+                        this.updateText(this.puzzle.grid[x][y].char);
+                    } else {
+                        sound.play("noHint");
+                    }
                 }
 
                 await this.checkWord();
                 this.findNextIndex(this.puzzle.grid[x][y].char);
                 this.finalCheck();
+            } else {
+                sound.play("noHint");
             }
         };
 
@@ -516,9 +523,9 @@ export class GameScene extends Container {
             this.hint_sound.text = this.hint_sound_count;
         };
 
-        const sound = new Button(`sound${type}`, deviceType === "tablet" ? WIDTH - 100 : WIDTH - 110, y);
-        sound.onpointerup = () => soundClickFn(sound, `sound${type}`);
-        this.addChild(sound);
+        const soundBtn = new Button(`sound${type}`, deviceType === "tablet" ? WIDTH - 100 : WIDTH - 110, y);
+        soundBtn.onpointerup = () => soundClickFn(soundBtn, `sound${type}`);
+        this.addChild(soundBtn);
 
         const showSoundText = new Text({
             text: this.hint_sound_count,
@@ -528,15 +535,15 @@ export class GameScene extends Container {
             },
         });
         showSoundText.anchor.set(0.5);
-        showSoundText.x = sound.x + sound.width / 2 - (deviceType === "tablet" ? 20 : 25);
-        showSoundText.y = sound.y - sound.height / 2 + (deviceType === "tablet" ? 20 : 25);
+        showSoundText.x = soundBtn.x + soundBtn.width / 2 - (deviceType === "tablet" ? 20 : 25);
+        showSoundText.y = soundBtn.y - soundBtn.height / 2 + (deviceType === "tablet" ? 20 : 25);
         this.hint_sound = showSoundText;
         this.addChild(showSoundText);
     }
 
     private keyboard() {
         const clickFn = async (key: string) => {
-            this.updateText(key);
+            await this.updateText(key);
             await this.checkWord();
             this.findNextIndex(key);
             this.finalCheck();
@@ -664,6 +671,8 @@ export class GameScene extends Container {
 
             particleContainer.addChild(particle);
 
+            sound.play("breakIce");
+
             // 랜덤한 360도 방향으로 이동
             const angle = Math.random() * Math.PI * 2;
             const distance = Math.random() * 100 + 50; // 이동 거리
@@ -683,8 +692,7 @@ export class GameScene extends Container {
     }
 
     private finalCheck() {
-        const isFinish = this.puzzle.list.every((list) => list.mode === "correct");
-
+        const isFinish = this.puzzle.correctAllCheck();
         const correctNum = this.puzzle.list.filter((list) => {
             return list.mode === "correct" && (list.item === "" || list.item === "showaletter1");
         }).length;
@@ -695,7 +703,140 @@ export class GameScene extends Container {
         this.clue_correct.text = `${correct}/${total}`;
 
         if (isFinish) {
-            console.log("끝");
+            this.state = "FINISH";
+            this.finishContainer.visible = true;
         }
+    }
+
+    private loadingScreen() {
+        const bg = new Graphics();
+        bg.rect(0, 0, WIDTH, HEIGHT);
+        bg.fill(0x000000, 0.5);
+        this.loadingContainer.addChild(bg);
+
+        const fredSprite = new AnimatedSprite(ASSETS.loading.fred);
+        fredSprite.scale = 0.8;
+        fredSprite.anchor.set(0.5);
+        fredSprite.x = WIDTH / 2;
+        fredSprite.y = HEIGHT / 2 + 100;
+        fredSprite.animationSpeed = 0.2; // 애니메이션 속도 설정 (값 조정 가능)
+        fredSprite.play();
+        this.loadingContainer.addChild(fredSprite);
+
+        this.addChild(this.loadingContainer);
+    }
+
+    private finishScreen() {
+        const w = 750;
+        const h = 720;
+
+        const bg = new Graphics();
+        bg.rect(0, 0, WIDTH, HEIGHT);
+        bg.fill(0x000000, 0.5);
+        this.finishContainer.addChild(bg);
+
+        const resultBg = new Graphics();
+        resultBg.filletRect(WIDTH / 2 - w / 2, HEIGHT / 2 - h / 2, w, h, 40);
+        resultBg.fill(0xbdd0e3);
+        this.finishContainer.addChild(resultBg);
+
+        const closeBtn = new Button("close", WIDTH / 2 + w / 2 - 20, HEIGHT / 2 - h / 2 + 20);
+        closeBtn.onpointerup = () => {
+            webviewClose(os);
+        };
+        this.finishContainer.addChild(closeBtn);
+
+        const resultText = new Sprite(ASSETS.puzzle.tryAgain);
+        resultText.anchor.set(0.5);
+        resultText.x = WIDTH / 2;
+        resultText.y = HEIGHT / 2 - h / 2 + 80;
+        this.finishContainer.addChild(resultText);
+
+        const scoreBg = new Sprite(ASSETS.puzzle.scoreBg);
+        scoreBg.anchor.set(0.5);
+        scoreBg.x = WIDTH / 2;
+        scoreBg.y = HEIGHT / 2;
+        this.finishContainer.addChild(scoreBg);
+
+        const correct = new Sprite(ASSETS.puzzle.correct);
+        correct.anchor.set(0.5);
+        correct.x = WIDTH / 2 - scoreBg.width / 4;
+        correct.y = HEIGHT / 2 - correct.height + 30;
+        this.finishContainer.addChild(correct);
+
+        const correctNum = this.puzzle.list.filter((list) => {
+            return list.mode === "correct" && (list.item === "" || list.item === "showaletter1");
+        }).length;
+
+        const correctText = new Text({
+            text: correctNum,
+            style: {
+                fontSize: 80,
+                fontWeight: "bold",
+            },
+        });
+        correctText.anchor.set(0.5);
+        correctText.x = WIDTH / 2 - scoreBg.width / 4;
+        correctText.y = HEIGHT / 2 + 100;
+        this.finishContainer.addChild(correctText);
+
+        const incorrectText = new Text({
+            text: this.puzzle.list.length - correctNum,
+            style: {
+                fontSize: 80,
+                fontWeight: "bold",
+            },
+        });
+        incorrectText.anchor.set(0.5);
+        incorrectText.x = WIDTH / 2 + scoreBg.width / 4;
+        incorrectText.y = HEIGHT / 2 + 100;
+        this.finishContainer.addChild(incorrectText);
+
+        const incorrect = new Sprite(ASSETS.puzzle.incorrect);
+        incorrect.anchor.set(0.5);
+        incorrect.x = WIDTH / 2 + scoreBg.width / 4;
+        incorrect.y = HEIGHT / 2 - correct.height + 30;
+        this.finishContainer.addChild(incorrect);
+
+        if (gameType === "word_master") {
+            const leftRound = wordMasterRound.value === "round1" ? "round2" : "round1";
+            if (leftRound === "round1") Typing.setData(Typing.round1_xml_data!);
+            else if (leftRound === "round2") Typing.setData(Typing.round2_xml_data!);
+
+            const roundBtn = new Button(`${leftRound}Horizontal`, WIDTH / 2 - scoreBg.width / 4, HEIGHT / 2 + h / 2 - 90);
+            roundBtn.scale = 0.73;
+            roundBtn.onpointerup = () => {
+                this.onGameStart();
+            };
+            this.finishContainer.addChild(roundBtn);
+
+            const replay = new Button("replay", WIDTH / 2 + scoreBg.width / 4, HEIGHT / 2 + h / 2 - 90);
+            replay.onpointerup = () => {
+                this.onGameStart();
+            };
+            this.finishContainer.addChild(replay);
+        } else {
+            const btn = new Button("tryAgain", WIDTH / 2, HEIGHT / 2 + h / 2 - 90);
+            btn.onpointerup = () => {
+                this.onGameStart();
+            };
+            this.finishContainer.addChild(btn);
+        }
+
+        this.addChild(this.finishContainer);
+    }
+
+    private isDev(w: number, h: number, x: number, y: number) {
+        const answer = new Text({
+            text: this.puzzle.selected?.word,
+            style: {
+                fontSize: 50,
+            },
+        });
+        answer.anchor.set(0.5);
+        answer.x = x + w / 2;
+        answer.y = y;
+        this.addChild(answer);
+        this.devAnswer = answer;
     }
 }
