@@ -1,6 +1,9 @@
 import { Container, Sprite, Assets, Texture, AnimatedSprite } from "pixi.js";
-import { HEIGHT, WIDTH, ASSETS } from "../config";
-import { ASSET_PATHS } from "../assets/assets";
+import { HEIGHT, WIDTH, ASSETS, gameType } from "../config";
+import { ASSET_PATHS, SOUND_ASSET_PATHS } from "../assets/assets";
+import { getTypingWordXml, getTypingWordXml1, getTypingWordXml2 } from "../apis/get";
+import Typing from "../utils/typing";
+import { sound } from "@pixi/sound";
 
 export class LoadingScene extends Container {
     private onComplete: () => void;
@@ -14,6 +17,7 @@ export class LoadingScene extends Container {
 
         // 로고 이미지 로드 (실제 이미지 경로로 변경 필요)
         this.loadAssets();
+        this.loadSounds();
     }
 
     private async showLoadingScreen() {
@@ -88,11 +92,51 @@ export class LoadingScene extends Container {
                 ASSETS.guide[name] = ASSETS.guide[name];
             }
 
+            // 퍼즐 (있다면)
+            for (const [name, path] of Object.entries(ASSET_PATHS.puzzle)) {
+                if (!ASSETS.puzzle) ASSETS.puzzle = {};
+                ASSETS.puzzle[name] = await Assets.load(path);
+                ASSETS.puzzle[name] = ASSETS.puzzle[name];
+            }
+
+            if (gameType === "word_master") {
+                const xml1 = await getTypingWordXml1();
+                const xml2 = await getTypingWordXml2();
+
+                if (xml1) {
+                    const xmlString = await xml1.text();
+                    Typing.round1_xml(xmlString);
+                }
+
+                if (xml2) {
+                    const xmlString = await xml2.text();
+                    Typing.round2_xml(xmlString);
+                }
+            } else {
+                const xml = await getTypingWordXml();
+                if (xml) {
+                    const xmlString = await xml.text();
+                    Typing.setData(xmlString);
+                }
+            }
+
             setTimeout(() => {
                 if (this.onComplete) this.onComplete();
             }, 500);
         } catch (error) {
             console.error("에셋 로딩 중 오류 발생:", error);
         }
+    }
+
+    private async loadSounds() {
+        try {
+            for (const [name, path] of Object.entries(SOUND_ASSET_PATHS)) {
+                Assets.add({ alias: name, src: path });
+                const soundBuffer = await Assets.load(name);
+                if (!sound.exists(name)) {
+                    sound.add(name, soundBuffer);
+                }
+            }
+        } catch (error) {}
     }
 }

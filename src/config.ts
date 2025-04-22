@@ -1,4 +1,5 @@
 import { getCookie } from "./utils/common";
+import { Puzzle } from "./utils/puzzle";
 
 export const ASSETS: Record<string, Record<string, any>> = {
     loading: {},
@@ -8,25 +9,41 @@ export const ASSETS: Record<string, Record<string, any>> = {
     study: {},
 };
 
-export const AssetsState = {
-    value: {} as Record<string, Record<string, any>>,
-    set(value: Record<string, Record<string, any>>) {
+export const clueState = {
+    value: {},
+    set(value: string) {
         this.value = value;
     },
 };
-export const SoundState = {
+
+export const studyCompleteState = {
+    value: false,
+    setComplete() {
+        this.value = true;
+    },
+};
+
+export const soundState = {
     value: true,
     set(value: boolean) {
         this.value = value;
     },
 };
-export const SoundTextState = {
+
+export const soundTextState = {
     value: "버튼을 탭하고 소리를 켜세요.",
     update(value: string) {
         this.value = value;
     },
 };
 
+export const wordMasterRound = {
+    value: "",
+    update(round: string) {
+        this.value = round;
+    },
+};
+export const puzzle = new Puzzle();
 /**
  * cookie setting
  */

@@ -1,12 +1,14 @@
 import { Container, Sprite, Text } from "pixi.js";
 import { gsap } from "gsap";
-import { deviceType, gameType, HEIGHT, ASSETS, SoundTextState, WIDTH } from "../config";
+import { deviceType, gameType, HEIGHT, ASSETS, soundTextState, WIDTH, soundState, wordMasterRound } from "../config";
 import { getContentInfo } from "../apis/get";
 import { Button } from "../components/Button";
 import { TopBar } from "../components/TopBar";
 import { sceneManager } from "../main";
 import { GuideScene } from "./GuideScene";
 import { StudyScene } from "./StudyScene";
+import { sound } from "@pixi/sound";
+import Typing from "../utils/typing";
 
 export class IntroScene extends Container {
     private onStudyStart: () => void;
@@ -26,10 +28,14 @@ export class IntroScene extends Container {
 
         if (res?.code === 200) {
             const text = res.info.sound_text;
-            SoundTextState.update(text);
+            soundTextState.update(text);
 
             this.info = res.info;
             callback();
+
+            if (soundState.value) {
+                sound.play("lobbyBgm", { loop: true });
+            }
         }
     }
 
@@ -148,18 +154,30 @@ export class IntroScene extends Container {
 
     private createGameStartBtn() {
         const type = deviceType === "tablet" ? "Horizontal" : "Vertical";
+        const clickFn = (round?: string) => {
+            if (round) {
+                wordMasterRound.update(round);
+
+                if (round === "round1") Typing.setData(Typing.round1_xml_data!);
+                else if (round === "round2") Typing.setData(Typing.round2_xml_data!);
+            }
+
+            this.onStudyStart();
+            if (soundState.value) {
+                sound.stop("lobbyBgm");
+                sound.play("startBtn");
+            }
+        };
 
         if (gameType === "word_master") {
             const x = deviceType === "tablet" ? 230 : 0;
             const y = deviceType === "tablet" ? 400 : 500;
 
-            const clickFn = () => this.onStudyStart();
-
             const round1 = new Button(`round1${type}`, WIDTH / 2 - x, HEIGHT / 2 + y);
-            const round2 = new Button(`round2${type}`, WIDTH / 2 + x, HEIGHT / 2 + y + 150);
+            const round2 = new Button(`round2${type}`, WIDTH / 2 + x, HEIGHT / 2 + y + (deviceType === "tablet" ? 0 : 150));
 
-            round1.onpointerup = clickFn;
-            round2.onpointerup = clickFn;
+            round1.onpointerup = () => clickFn("round1");
+            round2.onpointerup = () => clickFn("round2");
 
             this.addChild(round1);
             this.addChild(round2);
@@ -167,8 +185,7 @@ export class IntroScene extends Container {
             const y = deviceType === "tablet" ? 400 : 650;
             const start = new Button(`start${type}`, WIDTH / 2, HEIGHT / 2 + y);
 
-            const clickFn = () => this.onStudyStart();
-            start.onpointerup = clickFn;
+            start.onpointerup = () => clickFn;
             this.addChild(start);
         }
     }

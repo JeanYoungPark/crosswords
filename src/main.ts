@@ -1,7 +1,7 @@
 import { SceneManager } from "./scenes/SceneManager";
 import { LoadingScene } from "./scenes/LoadingScene";
 import { Application } from "pixi.js";
-import { HEIGHT, WIDTH, os, SoundState, ScaleState } from "./config";
+import { HEIGHT, WIDTH, os, soundState, ScaleState } from "./config";
 import { IntroScene } from "./scenes/IntroScene";
 import "./style.css";
 
@@ -10,7 +10,7 @@ export const sceneManager: SceneManager = new SceneManager(app);
 
 // 애플리케이션 생성
 async function init() {
-    await app.init({ backgroundColor: "#b8dbff" });
+    await app.init({ backgroundColor: "#b8dbff", antialias: true });
     document.body.appendChild(app.canvas);
 
     resizeApp();
@@ -34,7 +34,7 @@ const resizeApp = () => {
 window.addEventListener("resize", resizeApp);
 
 (() => {
-    if (os === "IOS") SoundState.set(false);
+    if (os === "IOS") soundState.set(false);
 })();
 
 init();
