@@ -54,6 +54,7 @@ export const fcId = getCookie({ name: "fc_id" }) ?? "";
 export const fuId = getCookie({ name: "fx7" }) ?? "";
 export const deviceType = getCookie({ name: "device_type" }) ?? "";
 export const stage = getCookie({ name: "stage" }) ?? "";
+export const isTest = getCookie({ name: "is_test" }) ?? "";
 
 export const foxschoolCookies = () => {
     if (serviceSite !== "foxschoool") return {};

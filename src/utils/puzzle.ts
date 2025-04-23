@@ -37,7 +37,6 @@ export class Puzzle {
     private min_cross = 4; // 최소 문제수
     private repeat_limit = 3; // min_corss 이하일때 반복 횟수
     private repeat_count = 0;
-    private num_chars = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮";
 
     // 데이터 취합
     public setData() {
