@@ -2,7 +2,7 @@
 import { AnimatedSprite, Container, Graphics, Sprite, Text, TextStyle } from "pixi.js";
 import { TopBar } from "../components/TopBar";
 import { Keyboard } from "../components/Keyboard";
-import { ASSETS, deviceType, gameType, HEIGHT, os, WIDTH, wordMasterRound } from "../config";
+import { ASSETS, deviceType, gameType, HEIGHT, isTest, os, WIDTH, wordMasterRound } from "../config";
 import { Puzzle } from "../utils/puzzle";
 import { Button } from "../components/Button";
 import gsap from "gsap";
@@ -11,6 +11,22 @@ import { sceneManager } from "../main";
 import { StudyScene } from "./StudyScene";
 import { webviewClose } from "../utils/common";
 import Typing from "../utils/typing";
+import { postSaveData } from "../apis/post";
+
+interface QuestionItem {
+    x: number;
+    y: number;
+    d: number;
+    num?: number;
+    clue: string;
+    longClue?: string;
+    word: string;
+    sound?: string;
+    direction?: number;
+    keyboard?: string[];
+    mode?: string;
+    item?: string;
+}
 
 export class GameScene extends Container {
     private onStudyStart: () => void;
@@ -44,6 +60,9 @@ export class GameScene extends Container {
     private timeText: Text = new Text();
 
     private state: string = "STAND_BY";
+    private isAnimating: boolean = false;
+
+    private result: { correct: Text; incorrect: Text } = { correct: new Text(), incorrect: new Text() };
 
     constructor() {
         super();
@@ -241,6 +260,8 @@ export class GameScene extends Container {
                     if (letter.mode === "input") {
                         bg.interactive = true;
                         bg.onpointerup = () => {
+                            if (this.isAnimating) return;
+
                             if (letter.word_h_idx > -1 && letter.word_v_idx > -1) {
                                 // 교차지점일 때
                                 if (this.word_idx === letter.word_h_idx) this.word_idx = letter.word_v_idx;
@@ -330,10 +351,26 @@ export class GameScene extends Container {
         this.timeText = time;
 
         const startTimer = () => {
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (this.limitTime <= 0 || this.state === "FINISH") {
                     this.state = "FINISH";
                     this.finishContainer.visible = true;
+
+                    const correctNum = this.puzzle.list.filter((list) => {
+                        return list.mode === "correct" && (list.item === "" || list.item === "showaletter1");
+                    }).length;
+
+                    if (gameType === "word_starter") {
+                        if (this.puzzle.list.length === correctNum) {
+                            const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
+
+                            console.log(res);
+                        }
+                    } else {
+                        const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
+
+                        console.log(res);
+                    }
                     return;
                 }
 
@@ -418,7 +455,9 @@ export class GameScene extends Container {
 
         this.addChild(txt);
 
-        this.isDev(w, h, x, y);
+        if (isTest) {
+            this.isDev(w, h, x, y);
+        }
     }
 
     private createButton() {
@@ -553,14 +592,16 @@ export class GameScene extends Container {
     }
 
     private async checkWord() {
-        const selected = this.puzzle.selected;
+        const word = this.puzzle.list;
         const focus = this.puzzle.focus;
 
-        if (!selected || !focus) return;
+        if (!word || !focus || focus.mode === "correct") return;
 
         // x 검사
         if (focus.word_h_idx > -1) {
+            const selected = word[focus.word_h_idx];
             let isCorrect = true;
+
             for (let i = 0; i < selected.word.length; i++) {
                 if (selected.word[i] !== this.textGrid[selected.x + i][selected.y]?.text) {
                     isCorrect = false;
@@ -568,12 +609,14 @@ export class GameScene extends Container {
                 }
             }
 
-            if (isCorrect) await this.correctWord(1, 0);
+            if (isCorrect) await this.correctWord(1, 0, selected);
         }
 
         // y 검사
         if (focus.word_v_idx > -1) {
+            const selected = word[focus.word_v_idx];
             let isCorrect = true;
+
             for (let i = 0; i < selected.word.length; i++) {
                 if (selected.word[i] !== this.textGrid[selected.x][selected.y + i]?.text) {
                     isCorrect = false;
@@ -581,12 +624,11 @@ export class GameScene extends Container {
                 }
             }
 
-            if (isCorrect) await this.correctWord(0, 1);
+            if (isCorrect) await this.correctWord(0, 1, selected);
         }
     }
 
-    private async correctWord(dx: number, dy: number) {
-        const selected = this.puzzle.selected;
+    private async correctWord(dx: number, dy: number, selected: QuestionItem) {
         const focus = this.puzzle.focus;
 
         if (!selected || !focus) return;
@@ -601,7 +643,6 @@ export class GameScene extends Container {
                 new Promise<void>((resolve) => {
                     setTimeout(() => {
                         this.puzzle.setMode(x, y, dx > 0 ? focus.word_h_idx : focus.word_v_idx, "correct");
-                        this.puzzle.setPuzzleIdx(dx > 0 ? focus.word_h_idx : focus.word_v_idx);
                         this.blockGrid[x][y]!.texture = ASSETS.puzzle.puzzleCorrectBg;
                         this.blockGrid[x][y]!.onpointerup = () => {
                             this.updateFocusBlock(x, y);
@@ -655,6 +696,8 @@ export class GameScene extends Container {
     }
 
     private particle(x: number, y: number) {
+        this.isAnimating = true;
+
         const particleCount = 40; // 초당 40개 생성
         const duration = 1.5; // 입자가 사라지는 시간
 
@@ -689,9 +732,11 @@ export class GameScene extends Container {
                 },
             });
         }
+
+        this.isAnimating = false;
     }
 
-    private finalCheck() {
+    private async finalCheck() {
         const isFinish = this.puzzle.correctAllCheck();
         const correctNum = this.puzzle.list.filter((list) => {
             return list.mode === "correct" && (list.item === "" || list.item === "showaletter1");
@@ -705,6 +750,21 @@ export class GameScene extends Container {
         if (isFinish) {
             this.state = "FINISH";
             this.finishContainer.visible = true;
+
+            const correctNum = this.puzzle.list.filter((list) => {
+                return list.mode === "correct" && (list.item === "" || list.item === "showaletter1");
+            }).length;
+
+            this.result.correct.text = correctNum;
+            this.result.incorrect.text = this.puzzle.list.length - correctNum;
+
+            if (gameType === "word_starter") {
+                if (this.puzzle.list.length === correctNum) {
+                    const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
+                }
+            } else {
+                const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
+            }
         }
     }
 
@@ -779,6 +839,7 @@ export class GameScene extends Container {
         correctText.x = WIDTH / 2 - scoreBg.width / 4;
         correctText.y = HEIGHT / 2 + 100;
         this.finishContainer.addChild(correctText);
+        this.result.correct = correctText;
 
         const incorrectText = new Text({
             text: this.puzzle.list.length - correctNum,
@@ -791,6 +852,7 @@ export class GameScene extends Container {
         incorrectText.x = WIDTH / 2 + scoreBg.width / 4;
         incorrectText.y = HEIGHT / 2 + 100;
         this.finishContainer.addChild(incorrectText);
+        this.result.incorrect = incorrectText;
 
         const incorrect = new Sprite(ASSETS.puzzle.incorrect);
         incorrect.anchor.set(0.5);

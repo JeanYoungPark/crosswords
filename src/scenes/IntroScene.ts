@@ -173,8 +173,11 @@ export class IntroScene extends Container {
             const x = deviceType === "tablet" ? 230 : 0;
             const y = deviceType === "tablet" ? 400 : 500;
 
-            const round1 = new Button(`round1${type}`, WIDTH / 2 - x, HEIGHT / 2 + y);
-            const round2 = new Button(`round2${type}`, WIDTH / 2 + x, HEIGHT / 2 + y + (deviceType === "tablet" ? 0 : 150));
+            const round1Check = this.info.round_1_clearYN === "N" ? "round1" : "round1Check";
+            const round2Check = this.info.round_2_clearYN === "N" ? "round2" : "round2Check";
+
+            const round1 = new Button(`${round1Check}${type}`, WIDTH / 2 - x, HEIGHT / 2 + y);
+            const round2 = new Button(`${round2Check}${type}`, WIDTH / 2 + x, HEIGHT / 2 + y + (deviceType === "tablet" ? 0 : 150));
 
             round1.onpointerup = () => clickFn("round1");
             round2.onpointerup = () => clickFn("round2");

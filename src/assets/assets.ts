@@ -51,12 +51,21 @@ export const ASSET_PATHS: Record<string, Record<string, any>> = {
 
         round1Horizontal: new URL("../assets/images/buttons/round1_horizontal_btn.png", import.meta.url).href,
         round1HorizontalTouch: new URL("../assets/images/buttons/round1_horizontal_touch_btn.png", import.meta.url).href,
+        round1CheckHorizontal: new URL("../assets/images/buttons/round1_horizontal_check_btn.png", import.meta.url).href,
+        round1CheckHorizontalTouch: new URL("../assets/images/buttons/round1_horizontal_check_touch_btn.png", import.meta.url).href,
         round1Vertical: new URL("../assets/images/buttons/round1_vertical_btn.png", import.meta.url).href,
         round1VerticalTouch: new URL("../assets/images/buttons/round1_vertical_touch_btn.png", import.meta.url).href,
+        round1CheckVertical: new URL("../assets/images/buttons/round1_vertical_check_btn.png", import.meta.url).href,
+        round1CheckVerticalTouch: new URL("../assets/images/buttons/round1_vertical_check_touch_btn.png", import.meta.url).href,
+
         round2Horizontal: new URL("../assets/images/buttons/round2_horizontal_btn.png", import.meta.url).href,
         round2HorizontalTouch: new URL("../assets/images/buttons/round2_horizontal_touch_btn.png", import.meta.url).href,
+        round2CheckHorizontal: new URL("../assets/images/buttons/round2_horizontal_check_btn.png", import.meta.url).href,
+        roundCheck2HorizontalTouch: new URL("../assets/images/buttons/round2_horizontal_touch_btn.png", import.meta.url).href,
         round2Vertical: new URL("../assets/images/buttons/round2_vertical_btn.png", import.meta.url).href,
         round2VerticalTouch: new URL("../assets/images/buttons/round2_vertical_touch_btn.png", import.meta.url).href,
+        round2CheckVertical: new URL("../assets/images/buttons/round2_vertical_check_btn.png", import.meta.url).href,
+        round2CheckVerticalTouch: new URL("../assets/images/buttons/round2_vertical_check_touch_btn.png", import.meta.url).href,
 
         guide: new URL("../assets/images/buttons/guide_btn.png", import.meta.url).href,
         guideTouch: new URL("../assets/images/buttons/guide_touch_btn.png", import.meta.url).href,
