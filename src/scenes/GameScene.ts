@@ -62,6 +62,8 @@ export class GameScene extends Container {
     private state: string = "STAND_BY";
     private isAnimating: boolean = false;
 
+    private result: { correct: Text; incorrect: Text } = { correct: new Text(), incorrect: new Text() };
+
     constructor() {
         super();
 
@@ -360,12 +362,12 @@ export class GameScene extends Container {
 
                     if (gameType === "word_starter") {
                         if (this.puzzle.list.length === correctNum) {
-                            const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, limitTime: this.limitTime });
+                            const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
 
                             console.log(res);
                         }
                     } else {
-                        const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, limitTime: this.limitTime });
+                        const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
 
                         console.log(res);
                     }
@@ -753,16 +755,15 @@ export class GameScene extends Container {
                 return list.mode === "correct" && (list.item === "" || list.item === "showaletter1");
             }).length;
 
+            this.result.correct.text = correctNum;
+            this.result.incorrect.text = this.puzzle.list.length - correctNum;
+
             if (gameType === "word_starter") {
                 if (this.puzzle.list.length === correctNum) {
-                    const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, limitTime: this.limitTime });
-
-                    console.log(res);
+                    const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
                 }
             } else {
-                const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, limitTime: this.limitTime });
-
-                console.log(res);
+                const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
             }
         }
     }
@@ -838,6 +839,7 @@ export class GameScene extends Container {
         correctText.x = WIDTH / 2 - scoreBg.width / 4;
         correctText.y = HEIGHT / 2 + 100;
         this.finishContainer.addChild(correctText);
+        this.result.correct = correctText;
 
         const incorrectText = new Text({
             text: this.puzzle.list.length - correctNum,
@@ -850,6 +852,7 @@ export class GameScene extends Container {
         incorrectText.x = WIDTH / 2 + scoreBg.width / 4;
         incorrectText.y = HEIGHT / 2 + 100;
         this.finishContainer.addChild(incorrectText);
+        this.result.incorrect = incorrectText;
 
         const incorrect = new Sprite(ASSETS.puzzle.incorrect);
         incorrect.anchor.set(0.5);
