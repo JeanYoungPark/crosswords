@@ -1,8 +1,8 @@
 // src/scenes/GameScene.ts
-import { AnimatedSprite, Container, Graphics, Sprite, Text, TextStyle } from "pixi.js";
+import { AnimatedSprite, Container, Graphics, Sprite, Text } from "pixi.js";
 import { TopBar } from "../components/TopBar";
 import { Keyboard } from "../components/Keyboard";
-import { ASSETS, deviceType, gameType, HEIGHT, isTest, os, WIDTH, wordMasterRound } from "../config";
+import { ASSETS, deviceType, gameType, HEIGHT, isTest, os, WIDTH, wordMasterRound, littlefoxCookies } from "../config";
 import { Puzzle } from "../utils/puzzle";
 import { Button } from "../components/Button";
 import gsap from "gsap";
@@ -63,6 +63,7 @@ export class GameScene extends Container {
     private isAnimating: boolean = false;
 
     private result: { correct: Text; incorrect: Text } = { correct: new Text(), incorrect: new Text() };
+    private patterns = ["[ruby]", "[/ruby]", "[rb]", "[/rb]", "[rp]", "[/rp]", "[rt]", "[/rt]", "[n]"];
 
     constructor() {
         super();
@@ -177,8 +178,31 @@ export class GameScene extends Container {
     }
 
     private updateDescription() {
+        this.patterns.forEach((pattern) => {
+            // 정규식으로 변환하여 전역 대체
+            const regex = new RegExp(pattern.replace(/[[\]]/g, "\\$&"), "g");
+
+            if (this.puzzle.selected && this.puzzle.selected.longClue) {
+                this.puzzle.selected.longClue = this.puzzle.selected.longClue.replace(regex, "");
+            }
+        });
+
         this.description.text = this.puzzle.selected?.longClue ?? "";
         this.devAnswer.text = this.puzzle.selected?.word ?? "";
+
+        let fontSize = 55;
+
+        if (littlefoxCookies().lang === "jp") {
+            do {
+                this.description.style.fontSize = fontSize;
+                this.description.style.lineHeight = fontSize * 1.2;
+
+                fontSize -= 1;
+            } while (this.description.width > this.description.style.wordWrapWidth && fontSize > 20); // 최소 폰트 크기는 20
+        } else {
+            this.description.style.fontSize = 55;
+            this.description.style.lineHeight = fontSize * 1.2;
+        }
     }
 
     private async updateText(letter: string) {
@@ -438,15 +462,44 @@ export class GameScene extends Container {
     }
 
     private createDescription(w: number, h: number, x: number, y: number) {
-        const txt = new Text({
-            text: this.puzzle.selected?.longClue,
-            style: {
-                fontSize: 55,
-                wordWrap: true,
-                wordWrapWidth: w - 40,
-                lineHeight: 65,
-            },
+        this.patterns.forEach((pattern) => {
+            // 정규식으로 변환하여 전역 대체
+            const regex = new RegExp(pattern.replace(/[[\]]/g, "\\$&"), "g");
+
+            if (this.puzzle.selected && this.puzzle.selected.longClue) {
+                this.puzzle.selected.longClue = this.puzzle.selected.longClue.replace(regex, "");
+            }
         });
+
+        let txt: Text;
+        const maxWidth = w - 40;
+        let fontSize = 55;
+
+        if (littlefoxCookies().lang === "jp") {
+            do {
+                txt = new Text({
+                    text: this.puzzle.selected?.longClue,
+                    style: {
+                        fontSize: fontSize,
+                        wordWrap: true,
+                        wordWrapWidth: maxWidth,
+                        lineHeight: fontSize * 1.2,
+                    },
+                });
+                fontSize -= 1;
+            } while (txt.width > maxWidth && fontSize > 20); // 최소 폰트 크기는 20
+        } else {
+            // 다른 언어는 줄바꿈만 적용
+            txt = new Text({
+                text: this.puzzle.selected?.longClue,
+                style: {
+                    fontSize: 55,
+                    wordWrap: true,
+                    wordWrapWidth: maxWidth,
+                    lineHeight: fontSize * 1.2,
+                },
+            });
+        }
 
         txt.anchor.set(0.5);
         txt.x = x + w / 2;
