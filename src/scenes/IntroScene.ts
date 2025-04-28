@@ -188,7 +188,7 @@ export class IntroScene extends Container {
             const y = deviceType === "tablet" ? 400 : 650;
             const start = new Button(`start${type}`, WIDTH / 2, HEIGHT / 2 + y);
 
-            start.onpointerup = () => clickFn;
+            start.onpointerup = () => clickFn();
             this.addChild(start);
         }
     }

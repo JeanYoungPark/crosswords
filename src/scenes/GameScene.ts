@@ -509,7 +509,7 @@ export class GameScene extends Container {
         this.addChild(txt);
 
         if (isTest === "Y") {
-            this.isDev(w, h, x, y);
+            this.isDev(w, x, y);
         }
     }
 
@@ -813,10 +813,10 @@ export class GameScene extends Container {
 
             if (gameType === "word_starter") {
                 if (this.puzzle.list.length === correctNum) {
-                    const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
+                    await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
                 }
             } else {
-                const res = await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
+                await postSaveData({ correctNum, totalLength: this.puzzle.list.length, leftTime: this.limitTime });
             }
         }
     }
@@ -941,7 +941,7 @@ export class GameScene extends Container {
         this.addChild(this.finishContainer);
     }
 
-    private isDev(w: number, h: number, x: number, y: number) {
+    private isDev(w: number, x: number, y: number) {
         const answer = new Text({
             text: this.puzzle.selected?.word,
             style: {

@@ -183,7 +183,7 @@ export class Puzzle {
             alphabet = alphabet.replace(alphabet[a_idx], "");
         }
 
-        keyboard_array.sort(function (a, b) {
+        keyboard_array.sort(() => {
             return Math.random() - 0.5;
         });
         return keyboard_array;
@@ -199,22 +199,6 @@ export class Puzzle {
     public correctAllCheck() {
         return this.list.every((list) => list.mode === "correct");
     }
-
-    // 오답 체크
-    private incorrectCount() {
-        var incorrect_count = 0;
-        for (let i = 0; i < this.list.length; i++) {
-            if (this.list[i].mode == "input") incorrect_count++;
-        }
-
-        return incorrect_count;
-    }
-
-    // 짧은 설명 가져오기
-    // public clueShort(idx: number) {
-    //     var clue = this.num_chars.substring(idx, idx + 1) + " " + this.list[idx].clue;
-    //     return clue.length > 25 ? clue.substring(0, 25) + "..." : clue;
-    // }
 
     // 퍼즐 데이터 설정
     public setItem(x: number, y: number, d: number, item: string) {

@@ -72,7 +72,6 @@ export class XWords {
     public QuestionList: QuestionItem[] = [];
 
     private bestFit: AlternativeGrid | null = null;
-    private sErrors: string = "";
 
     Reset() {
         this.Grid = [];
@@ -85,7 +84,6 @@ export class XWords {
 
         this.Words = [];
         this.bestFit = null;
-        this.sErrors = "";
     }
 
     create(height: number, width: number, arrayOfWords: Clue[]) {
