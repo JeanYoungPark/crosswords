@@ -508,7 +508,7 @@ export class GameScene extends Container {
 
         this.addChild(txt);
 
-        if (isTest) {
+        if (isTest === "Y") {
             this.isDev(w, h, x, y);
         }
     }
